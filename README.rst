@@ -10,7 +10,7 @@ clusters.
 Pylm
 ----
 
-`Pylm<https://github.com/nfqsolutions/pylm>`_ is the Python
+`Pylm <https://github.com/nfqsolutions/pylm>`_ is the Python
 implementation of PALM, a framework to build clusters of high
 performance components. It is presented in two different levels of
 abstraction. In the high level API you will find servers and clients
