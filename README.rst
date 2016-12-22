@@ -4,8 +4,8 @@
 Pylm-registry
 =============
 
-Pylm registry is a centralized service for configuration of PALM
-clusters.
+Pylm registry is a centralized service to manage the configuration of
+PALM clusters.
 
 Pylm
 ----

@@ -14,6 +14,7 @@ setup(
     namespace_packages=['pylm'],
     install_requires=['pylm', 'tornado'],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'])
+    tests_require=['pytest'],
+    scripts=['scripts/pylm-registry.py'])
 
     
