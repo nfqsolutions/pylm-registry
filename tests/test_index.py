@@ -9,3 +9,7 @@ class TestIndexApp(AsyncHTTPTestCase):
     def test_index(self):
         response = self.fetch('/')
         self.assertEqual(response.code, 200)
+
+    def test_another(self):
+        response = self.fetch('/')
+        self.assertEqual(response.code, 200)
