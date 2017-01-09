@@ -1,8 +1,11 @@
 from pylm.registry.config import configuration
+from pylm.registry.db import DB
+from pylm.registry.models import AdminProfile
 from uuid import uuid4
 import tornado.web
 import tornado.template
 import pylm.registry
+import datetime
 import inspect
 import os
 
@@ -21,14 +24,17 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         template_dir = os.path.join(ROOT_PATH, 'templates')
         loader = tornado.template.Loader(template_dir)
-        self.write(loader.load("index.html").generate(version=pylm.registry.__version__))
+        self.write(loader.load("index.html").generate(
+            version=pylm.registry.__version__)
+        )
 
 
 class ClusterHandler(tornado.web.RequestHandler):
     def get(self):
         template_dir = os.path.join(ROOT_PATH, 'templates')
         loader = tornado.template.Loader(template_dir)
-        self.write(loader.load("cluster.html").generate(version=pylm.registry.__version__))
+        self.write(loader.load("cluster.html").generate(
+            version=pylm.registry.__version__))
 
 
 class AdminHandler(tornado.web.RequestHandler):
@@ -36,8 +42,19 @@ class AdminHandler(tornado.web.RequestHandler):
         if 'Key' in self.request.headers:
             if self.request.headers['Key'] == configuration['Admin']['Key']:
                 # This part generates an administrator user and key
+                user_key = self.get_argument('key', default=str(uuid4()))
+                name = self.get_argument('name', default='No name given')
+                
+                admin = AdminProfile()
+                admin.key = user_key
+                admin.name = name
+                admin.when = datetime.datetime.now()
+
+                DB.session.add(admin)
+                DB.session.commit()
+                
                 self.set_status(200)
-                self.write('Admin interface')
+                self.write(user_key.encode('utf-8'))
             else:
                 self.set_status(400)
                 self.write(b'Bad master key')
