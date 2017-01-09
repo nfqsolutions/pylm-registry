@@ -4,24 +4,35 @@ import pylm.registry
 import inspect
 import os
 
-ROOT_PATH = os.path.abspath(os.path.join(inspect.getfile(pylm.registry), os.pardir))
-STATIC_PATH = os.path.abspath(os.path.join(inspect.getfile(pylm.registry), os.pardir, 'static'))
+ROOT_PATH = os.path.abspath(os.path.join(
+    inspect.getfile(pylm.registry),
+    os.pardir)
+    )
+STATIC_PATH = os.path.abspath(os.path.join(
+    inspect.getfile(pylm.registry),
+    os.pardir,
+    'static')
+    )
 
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        loader = tornado.template.Loader(os.path.join(ROOT_PATH, 'templates'))
-        what = self.get_argument('something', default=None)
-
-        if what:
-            print(what)
+        template_dir = os.path.join(ROOT_PATH, 'templates')
+        loader = tornado.template.Loader(template_dir)
+        #print(self.request.headers)
         self.write(loader.load("index.html").generate(version=pylm.registry.__version__))
 
 
 class ClusterHandler(tornado.web.RequestHandler):
     def get(self):
-        loader = tornado.template.Loader(os.path.join(ROOT_PATH, 'templates'))
+        template_dir = os.path.join(ROOT_PATH, 'templates')
+        loader = tornado.template.Loader(template_dir)
         self.write(loader.load("cluster.html").generate(version=pylm.registry.__version__))
+
+
+class AdminHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write('Admin interface')
 
 
 class StaticHandler(tornado.web.RequestHandler):

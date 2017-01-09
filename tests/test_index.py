@@ -1,5 +1,5 @@
 from tornado.testing import AsyncHTTPTestCase
-from pylm.registry.main import app
+from pylm.registry.routes import app
 
 
 class TestIndexApp(AsyncHTTPTestCase):
@@ -7,7 +7,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         return app
 
     def test_index(self):
-        response = self.fetch('/?something=what')
+        response = self.fetch('/?something=what', headers={'ho': 'ho'})
         self.assertEqual(response.code, 200)
 
     def test_another(self):
@@ -20,4 +20,8 @@ class TestIndexApp(AsyncHTTPTestCase):
 
     def test_favicon(self):
         response = self.fetch('/favicon.ico')
+        self.assertEqual(response.code, 200)
+
+    def test_admin(self):
+        response = self.fetch('/admin')
         self.assertEqual(response.code, 200)

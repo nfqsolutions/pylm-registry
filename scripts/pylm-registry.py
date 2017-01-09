@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from pylm.registry.main import app
+from pylm.registry.routes import app
 import argparse
 import tornado.ioloop
 
