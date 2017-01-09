@@ -1,1 +1,2 @@
 recursive-include pylm/registry/templates *
+recursive-include pylm/registry/static *
