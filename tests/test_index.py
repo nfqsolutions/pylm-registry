@@ -38,10 +38,6 @@ class TestIndexApp(AsyncHTTPTestCase):
         response = self.fetch('/')
         self.assertEqual(response.code, 200)
 
-    def test_02cluster(self):
-        response = self.fetch('/cluster')
-        self.assertEqual(response.code, 200)
-
     def test_03favicon(self):
         response = self.fetch('/favicon.ico')
         self.assertEqual(response.code, 200)
@@ -86,10 +82,14 @@ class TestIndexApp(AsyncHTTPTestCase):
     def test_08user_list(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'user_list'})),
-                              headers={'Key': 'new_key'})
+            headers={'Key': 'new_key'})
         self.assertEqual(response.code, 200),
         buffer = io.BytesIO(response.body)
         user_list = pd.read_csv(buffer)
         self.assertEqual(user_list.name[0], "New User")
 
-
+    def test_09new_cluster(self):
+        response = self.fetch('/cluster?{}'.format(
+            parse.urlencode({'method': 'new_cluster'})),
+            headers={'Key': 'new key'})
+        self.assertEqual(response.code, 200)

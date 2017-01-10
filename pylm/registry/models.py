@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from pylm.registry.db import Model
 
 
@@ -27,6 +27,8 @@ class UserProfile(Model):
     when = Column(DateTime)
     data = Column(String)
     key = Column(String)
+    active = Column(Boolean)
+    active_until = Column(DateTime)
 
     def __repr__(self):
         return "<User {}>".format(self.name)

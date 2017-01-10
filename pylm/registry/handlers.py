@@ -41,14 +41,47 @@ class IndexHandler(tornado.web.RequestHandler):
 
 
 class ClusterHandler(tornado.web.RequestHandler):
+    def set_new_cluster(self):
+        pass
+
     def get(self):
-        template_dir = os.path.join(ROOT_PATH, 'templates')
-        loader = tornado.template.Loader(template_dir)
-        self.write(loader.load("cluster.html").generate(
-            version=pylm.registry.__version__))
+        methods = {
+            'new_cluster': self.set_new_cluster
+        }
+        user_method = self.get_argument('method', default=False)
+
+        if user_method and user_method in methods:
+            methods[self.get_argument('method')]()
+        else:
+            self.set_status(400)
+            self.write(b'Bad method or method not present')
 
 
 class AdminHandler(tornado.web.RequestHandler):
+    def is_admin(self):
+        """
+        Check if the request is from a user with admin privileges
+
+        :return: True if has admin privileges, False otherwise
+        """
+        if 'Key' in self.request.headers:
+            admin_key = self.request.headers['Key']
+            # Check if the admin key is one of the valid admins.
+            is_admin = DB.session.query(AdminProfile).filter(AdminProfile.key == admin_key).one_or_none()
+
+            if is_admin:
+                return True
+
+            else:
+                self.set_status(400)
+                self.write(b'Admin key not valid')
+
+        else:
+            self.set_status(400)
+            self.write(b'Admin key not present')
+
+        return False
+
     def set_new_admin(self):
         """
         Set new admin
@@ -86,38 +119,24 @@ class AdminHandler(tornado.web.RequestHandler):
 
         :return: User key as bits
         """
-        if 'Key' in self.request.headers:
-            admin_key = self.request.headers['Key']
-            # Check if the admin key is one of the valid admins.
-            all_admin = DB.session.query(AdminProfile).all()
-            all_admin_keys = [a.key for a in all_admin]
+        if self.is_admin():
+            user_key = self.get_argument('key', default=str(uuid4()))
+            name = self.get_argument('name', default='Anonymous')
+            data = self.get_argument('data', default='')
 
-            if admin_key in all_admin_keys:
-                user_key = self.get_argument('key', default=str(uuid4()))
-                name = self.get_argument('name', default='Anonymous')
-                data = self.get_argument('data', default='')
+            user = UserProfile()
+            user.key = user_key
+            user.when = datetime.datetime.now()
+            user.data = data
+            user.name = name
 
-                user = UserProfile()
-                user.key = user_key
-                user.when = datetime.datetime.now()
-                user.data = data
-                user.name = name
+            DB.session.add(user)
+            DB.session.commit()
 
-                DB.session.add(user)
-                DB.session.commit()
+            db_log('Create user {}'.format(name))
 
-                db_log('Create user {}'.format(name))
-
-                self.set_status(200)
-                self.write(user_key.encode('utf-8'))
-
-            else:
-                self.set_status(400)
-                self.write(b'Admin key not valid')
-
-        else:
-            self.set_status(400)
-            self.write(b'Admin key not present')
+            self.set_status(200)
+            self.write(user_key.encode('utf-8'))
 
     def get_user_list(self):
         """
@@ -125,24 +144,13 @@ class AdminHandler(tornado.web.RequestHandler):
 
         :return: User key as bits
         """
-        if 'Key' in self.request.headers:
-            admin_key = self.request.headers['Key']
-            # Check if the admin key is one of the valid admins.
-            all_admin = DB.session.query(AdminProfile).all()
-            all_admin_keys = [a.key for a in all_admin]
+        if self.is_admin():
+            users = pd.read_sql('user_profiles', DB.engine)
+            self.set_status(200)
+            self.write(users.to_csv().encode('utf-8'))
 
-            if admin_key in all_admin_keys:
-                users = pd.read_sql('user_profiles', DB.engine)
-                self.set_status(200)
-                self.write(users.to_csv().encode('utf-8'))
-
-            else:
-                self.set_status(400)
-                self.write(b'Admin key not valid')
-
-        else:
-            self.set_status(400)
-            self.write(b'Admin key not present')
+    def set_user_inactive(self):
+        pass
 
     def get(self):
         methods = {
