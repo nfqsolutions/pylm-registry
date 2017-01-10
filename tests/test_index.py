@@ -47,7 +47,7 @@ class TestIndexApp(AsyncHTTPTestCase):
             parse.urlencode({'method': 'new_admin',
                              'name': 'New Admin Account',
                              'key': 'new_key'})),
-                              headers={'Key': 'test'})
+            headers={'Key': 'test'})
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, b'new_key')
 
@@ -65,7 +65,7 @@ class TestIndexApp(AsyncHTTPTestCase):
                              'name': 'New User',
                              'data': '{}',
                              'key': "new key"})),
-                              headers={'Key': 'new_key'})
+            headers={'Key': 'new_key'})
         self.assertEqual(response.code, 200),
         self.assertEqual(response.body, b"new key")
 
@@ -75,7 +75,7 @@ class TestIndexApp(AsyncHTTPTestCase):
                              'name': 'New User',
                              'data': '{}',
                              'key': "new key"})),
-                              headers={'Key': 'wrong_key'})
+            headers={'Key': 'wrong_key'})
         self.assertEqual(response.code, 400),
         self.assertEqual(response.body, b"Admin key not valid")
 
@@ -88,7 +88,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         user_list = pd.read_csv(buffer)
         self.assertEqual(user_list.name[0], "New User")
 
-    def test_09new_cluster(self):
+    def test_10new_cluster(self):
         response = self.fetch('/cluster?{}'.format(
             parse.urlencode({'method': 'new_cluster'})),
             headers={'Key': 'new key'})

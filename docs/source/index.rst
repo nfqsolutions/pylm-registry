@@ -10,6 +10,9 @@ Welcome to Pylm-registry's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   cluster_configuration
+   server_configuration
+
 
 
 Indices and tables

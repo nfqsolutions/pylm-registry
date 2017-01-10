@@ -41,6 +41,31 @@ class IndexHandler(tornado.web.RequestHandler):
 
 
 class ClusterHandler(tornado.web.RequestHandler):
+    def is_user(self):
+        """
+        Check if the request is from a user with admin privileges
+
+        :return: True if has admin privileges, False otherwise
+        """
+        if 'Key' in self.request.headers:
+            user_key = self.request.headers['Key']
+            # Check if the admin key is one of the valid admins.
+            is_user = DB.session.query(
+                UserProfile).filter(UserProfile.key == user_key).one_or_none()
+
+            if is_user:
+                return True
+
+            else:
+                self.set_status(400)
+                self.write(b'User key not valid')
+
+        else:
+            self.set_status(400)
+            self.write(b'User key not present')
+
+        return False
+
     def set_new_cluster(self):
         pass
 
@@ -67,7 +92,8 @@ class AdminHandler(tornado.web.RequestHandler):
         if 'Key' in self.request.headers:
             admin_key = self.request.headers['Key']
             # Check if the admin key is one of the valid admins.
-            is_admin = DB.session.query(AdminProfile).filter(AdminProfile.key == admin_key).one_or_none()
+            is_admin = DB.session.query(
+                AdminProfile).filter(AdminProfile.key == admin_key).one_or_none()
 
             if is_admin:
                 return True
