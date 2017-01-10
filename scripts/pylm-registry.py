@@ -19,6 +19,7 @@ parser.add_argument('--sync', action='store_true')
 parser.set_defaults(sync=False)
 args = parser.parse_args()
 
+# This environment variable is needed at import time
 os.environ['PYLM_REGISTRY_CONFIG'] = args.config
 
 from pylm.registry.routes import app
