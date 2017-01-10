@@ -2,6 +2,7 @@ from pylm.registry.config import configuration
 from pylm.registry.db import DB
 from pylm.registry.models import AdminProfile, UserProfile, AdminLog
 from uuid import uuid4
+import pandas as pd
 import tornado.web
 import tornado.template
 import pylm.registry
@@ -118,10 +119,36 @@ class AdminHandler(tornado.web.RequestHandler):
             self.set_status(400)
             self.write(b'Admin key not present')
 
+    def get_user_list(self):
+        """
+        Get a list of users
+
+        :return: User key as bits
+        """
+        if 'Key' in self.request.headers:
+            admin_key = self.request.headers['Key']
+            # Check if the admin key is one of the valid admins.
+            all_admin = DB.session.query(AdminProfile).all()
+            all_admin_keys = [a.key for a in all_admin]
+
+            if admin_key in all_admin_keys:
+                users = pd.read_sql('user_profiles', DB.engine)
+                self.set_status(200)
+                self.write(users.to_csv().encode('utf-8'))
+
+            else:
+                self.set_status(400)
+                self.write(b'Admin key not valid')
+
+        else:
+            self.set_status(400)
+            self.write(b'Admin key not present')
+
     def get(self):
         methods = {
             'new_admin': self.set_new_admin,
-            'new_user': self.set_new_user
+            'new_user': self.set_new_user,
+            'user_list': self.get_user_list
         }
         user_method = self.get_argument('method', default=False)
 

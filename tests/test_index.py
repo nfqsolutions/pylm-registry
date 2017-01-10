@@ -1,7 +1,9 @@
 from urllib import parse
 import os
+import io
 import inspect
 import pylm.registry
+import pandas as pd
 
 # Set the configuration as the environment variable.
 
@@ -58,7 +60,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 400)
         self.assertEqual(response.body, b'Key not present')
 
-    def test_user_set(self):
+    def test_user_0set(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'new_user',
                              'name': 'New User',
@@ -68,7 +70,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200),
         self.assertEqual(response.body, b"new key")
 
-    def test_user_wrong(self):
+    def test_user_1wrong(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'new_user',
                              'name': 'New User',
@@ -77,5 +79,16 @@ class TestIndexApp(AsyncHTTPTestCase):
                               headers={'Key': 'wrong_key'})
         self.assertEqual(response.code, 400),
         self.assertEqual(response.body, b"Admin key not valid")
+
+    def test_user_2list(self):
+        response = self.fetch('/admin?{}'.format(
+            parse.urlencode({'method': 'user_list'})),
+                              headers={'Key': 'new_key'})
+        self.assertEqual(response.code, 200),
+        buffer = io.BytesIO()
+        buffer.write(response.body)
+        buffer.seek(io.SEEK_SET)
+        user_list = pd.read_csv(buffer)
+        self.assertEqual(user_list.name[0], "New User")
 
 

@@ -12,7 +12,7 @@ setup(
         'pylm.registry'
         ],
     namespace_packages=['pylm'],
-    install_requires=['pylm', 'tornado', 'sqlalchemy'],
+    install_requires=['pylm', 'tornado', 'sqlalchemy', 'pandas'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     scripts=['scripts/pylm-registry.py'])
