@@ -22,28 +22,31 @@ from pylm.registry.db import DB
 
 DB.sync_tables()
 
+# Class that holds the temporary server. Note that the tests must be executed
+# in strict order.
+
 
 class TestIndexApp(AsyncHTTPTestCase):
     def get_app(self):
         return app
 
-    def test_index(self):
+    def test_00index(self):
         response = self.fetch('/?something=what')
         self.assertEqual(response.code, 200)
 
-    def test_another(self):
+    def test_01another(self):
         response = self.fetch('/')
         self.assertEqual(response.code, 200)
 
-    def test_cluster(self):
+    def test_02cluster(self):
         response = self.fetch('/cluster')
         self.assertEqual(response.code, 200)
 
-    def test_favicon(self):
+    def test_03favicon(self):
         response = self.fetch('/favicon.ico')
         self.assertEqual(response.code, 200)
 
-    def test_admin_set(self):
+    def test_04admin_set(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'new_admin',
                              'name': 'New Admin Account',
@@ -52,7 +55,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, b'new_key')
 
-    def test_admin_wrong(self):
+    def test_05admin_wrong(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'new_admin',
                              'name': 'New Admin Account'})
@@ -60,7 +63,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 400)
         self.assertEqual(response.body, b'Key not present')
 
-    def test_user_0set(self):
+    def test_06user_set(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'new_user',
                              'name': 'New User',
@@ -70,7 +73,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200),
         self.assertEqual(response.body, b"new key")
 
-    def test_user_1wrong(self):
+    def test_07user_wrong(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'new_user',
                              'name': 'New User',
@@ -80,14 +83,12 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 400),
         self.assertEqual(response.body, b"Admin key not valid")
 
-    def test_user_2list(self):
+    def test_08user_list(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'user_list'})),
                               headers={'Key': 'new_key'})
         self.assertEqual(response.code, 200),
-        buffer = io.BytesIO()
-        buffer.write(response.body)
-        buffer.seek(io.SEEK_SET)
+        buffer = io.BytesIO(response.body)
         user_list = pd.read_csv(buffer)
         self.assertEqual(user_list.name[0], "New User")
 
