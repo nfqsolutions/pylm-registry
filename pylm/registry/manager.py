@@ -7,8 +7,10 @@ class ClusterManager(object):
         self.requested_services = configparser.ConfigParser()
         self.requested_services.read_string(config_data)
         self.socket_assignment = defaultdict(list)
+        self.socket_mapping = {}
         self.cluster_structure = {}
         self.configured_resources = {}
+        self.highest_port_used = defaultdict(int)
         self.ready = False
 
         # Compute the cluster structure
@@ -23,11 +25,11 @@ class ClusterManager(object):
 
                 for variable in self.requested_services[service]:
                     value = self.requested_services[service][variable]
-                    if value.startswith('{'):
+                    if value.startswith('_'):
                         sockets.append(value)
 
                     if variable.startswith('--'):
-                        commands.append(' '.join([variable, value]))
+                        commands.append(' '.join([variable, '{{{}}}'.format(value)]))
 
                 connections = [s.strip() for s in self.requested_services.get(
                     service, 'Connected', fallback='').split(',')
@@ -42,16 +44,14 @@ class ClusterManager(object):
                     'role': self.requested_services.get(
                         service, 'Role', fallback='Master'),
                     'replicas': self.requested_services.getint(
-                        service, 'Replicas', fallback=0)
+                        service, 'Replicas', fallback=0),
+                    'ready': False
                     }
 
         # Find dependencies from the socket connections.
         for name, service in self.cluster_structure.items():
             for socket in service['sockets']:
                 self.socket_assignment[socket].append(name)
-
-        print(self.cluster_structure)
-        print(self.socket_assignment)
 
     def process_resource(self, server_spec):
         """
@@ -68,21 +68,51 @@ class ClusterManager(object):
             processor_used = False
             # Find a suitable service
             for service in self.cluster_structure:
-                # Obtain the number of instances of a given service runniing
+                # Obtain the number of instances of a given service running
                 service_instances = sum(
                     map(lambda x: x.startswith(service),
                         self.configured_resources)
                 )
                 if service_instances <= self.cluster_structure[service]['replicas']:
+                    # Here I need to allocate this available core.
+                    ip = server_config.get('DEFAULT', 'ip')
+                    if server_config.getint('DEFAULT', 'ports_from') > self.highest_port_used[ip]:
+                        self.highest_port_used[ip] = server_config.getint('DEFAULT', 'ports_from')
+
+                    # This is the complicated part, compute the necessary port numbers
+                    # for the required sockets
+
+                    for socket in self.cluster_structure[service]['sockets']:
+                        if socket not in self.socket_mapping:
+                            self.socket_mapping[socket] = 'tcp://{}:{}'.format(
+                                ip,
+                                self.highest_port_used[ip]
+                            )
+                            self.highest_port_used[ip] += 1
+
+                    resource_configuration = {
+                        'commands': [
+                            c.format(**self.socket_mapping) for c in self.cluster_structure[service]['commands']
+                        ],
+                        'node': ip
+                    }
+
                     if self.cluster_structure[service]['replicas']:
                         self.configured_resources['{} {}'.format(
                             service,
-                            service_instances+1)] = None
+                            service_instances+1)] = resource_configuration
+
+                        intended_replicas = self.cluster_structure[service]['replicas']
+                        if intended_replicas == service_instances:
+                            self.cluster_structure[service]['ready'] = True
                     else:
-                        self.configured_resources[service] = None
-                        print('Configuring...')
+                        self.configured_resources[service] = resource_configuration
+                        self.cluster_structure[service]['ready'] = True
 
                     processor_used = service
+                    # Core configured, break the loop to configure the next
+                    # core or to leave this server alone.
+                    break
 
             if processor_used:
                 print("Resource used for {}".format(processor_used))
@@ -91,4 +121,11 @@ class ClusterManager(object):
                     server_config.get('DEFAULT', 'Ip'),
                     i))
 
-        print(self.configured_resources)
+        # Check which
+        config_message = []
+
+        for resource in self.configured_resources.values():
+            if resource['node'] == server_config.get('DEFAULT', 'ip'):
+                config_message.append(' '.join(resource['commands']))
+
+        return config_message

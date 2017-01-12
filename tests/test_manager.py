@@ -4,19 +4,18 @@ from pylm.registry.manager import ClusterManager
 cluster = """
 [Valuation Master]
 Script = valuation_standalone_master.py
---pull = {_1}
---pub = {_2}
---workerpull = {_3}
---workerpush = {_4}
---db = {_5}
-Role = Master
-Replicas = 0
+--pull = _1
+--pub = _2
+--workerpull = _3
+--workerpush = _4
+--db = _5
 
 [Valuation Worker]
 Script = valuation_worker.py
---db = {_5}
+--db = _5
 Connected = Valuation Master
 Role = Worker
+Replicas = 1
 """
 
 server = """
@@ -37,5 +36,12 @@ def test_00load_cluster():
 
 def test_01simple_request():
     manager = ClusterManager(cluster)
-    manager.process_resource(server)
-    assert 0 == 1
+    commands = manager.process_resource(server)
+    assert commands == ['python3 valuation_standalone_master.py '
+                        '--pull tcp://127.0.0.1:5555 '
+                        '--pub tcp://127.0.0.1:5556 '
+                        '--workerpull tcp://127.0.0.1:5557 '
+                        '--workerpush tcp://127.0.0.1:5558 '
+                        '--db tcp://127.0.0.1:5559',
+                        'python3 valuation_worker.py --db tcp://127.0.0.1:5559',
+                        'python3 valuation_worker.py --db tcp://127.0.0.1:5559']
