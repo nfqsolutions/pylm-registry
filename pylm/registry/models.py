@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from pylm.registry.db import Model
+from sqlalchemy.orm import relationship
 
 
 class AdminLog(Model):
@@ -9,8 +10,8 @@ class AdminLog(Model):
     when = Column(DateTime)
 
 
-class AdminProfile(Model):
-    __tablename__ = 'admin_profiles'
+class Admin(Model):
+    __tablename__ = 'admins'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     when = Column(DateTime)
@@ -20,8 +21,8 @@ class AdminProfile(Model):
         return "<Admin {}>".format(self.name)
 
 
-class UserProfile(Model):
-    __tablename__ = 'user_profiles'
+class User(Model):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     when = Column(DateTime)
@@ -29,6 +30,17 @@ class UserProfile(Model):
     key = Column(String)
     active = Column(Boolean)
     active_until = Column(DateTime)
+    clusters = relationship("Cluster", back_populates="user")
 
     def __repr__(self):
         return "<User {}>".format(self.name)
+
+
+class Cluster(Model):
+    __tablename__ = 'clusters'
+    id = Column(Integer, primary_key=True)
+    key = Column(String)
+    when = Column(DateTime)
+    description = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("User", back_populates="clusters")

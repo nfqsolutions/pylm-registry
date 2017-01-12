@@ -1,6 +1,6 @@
 from pylm.registry.config import configuration
 from pylm.registry.db import DB
-from pylm.registry.models import AdminProfile, UserProfile, AdminLog
+from pylm.registry.models import Admin, User, AdminLog, Cluster
 from uuid import uuid4
 import pandas as pd
 import tornado.web
@@ -8,6 +8,7 @@ import tornado.template
 import pylm.registry
 import datetime
 import inspect
+import json
 import os
 
 ROOT_PATH = os.path.abspath(os.path.join(
@@ -51,7 +52,7 @@ class ClusterHandler(tornado.web.RequestHandler):
             user_key = self.request.headers['Key']
             # Check if the admin key is one of the valid admins.
             is_user = DB.session.query(
-                UserProfile).filter(UserProfile.key == user_key).one_or_none()
+                User).filter(User.key == user_key).one_or_none()
 
             if is_user:
                 return True
@@ -67,11 +68,44 @@ class ClusterHandler(tornado.web.RequestHandler):
         return False
 
     def set_new_cluster(self):
-        pass
+        if self.is_user():
+            # Get the user from the user key
+            user_key = self.request.headers['Key']
+            user = DB.session.query(
+                User).filter(User.key == user_key).one_or_none()
+
+            cluster = Cluster()
+            cluster.key = self.get_argument('key', default=uuid4())
+            cluster.description = self.get_argument('description')
+            cluster.when = datetime.datetime.now()
+            cluster.user = user
+
+            DB.session.add(cluster)
+            DB.session.commit()
+
+            self.set_status(200)
+            self.write(cluster.key.encode('utf-8'))
+
+    def get_clusters_list(self):
+        if self.is_user():
+            # Get the user from the user key
+            user_key = self.request.headers['Key']
+            user = DB.session.query(
+                User).filter(User.key == user_key).one_or_none()
+
+            clusters_dump = dict()
+            for cluster in user.clusters:
+                clusters_dump[cluster.key] = {
+                    "description": cluster.description
+                }
+
+            self.set_status(200)
+            self.write(json.dumps(clusters_dump).encode('utf-8'))
 
     def get(self):
         methods = {
-            'new_cluster': self.set_new_cluster
+            'new_cluster': self.set_new_cluster,
+            'clusters_list': self.get_clusters_list,
         }
         user_method = self.get_argument('method', default=False)
 
@@ -93,7 +127,7 @@ class AdminHandler(tornado.web.RequestHandler):
             admin_key = self.request.headers['Key']
             # Check if the admin key is one of the valid admins.
             is_admin = DB.session.query(
-                AdminProfile).filter(AdminProfile.key == admin_key).one_or_none()
+                Admin).filter(Admin.key == admin_key).one_or_none()
 
             if is_admin:
                 return True
@@ -120,7 +154,7 @@ class AdminHandler(tornado.web.RequestHandler):
                 user_key = self.get_argument('key', default=str(uuid4()))
                 name = self.get_argument('name', default='No name given')
                 
-                admin = AdminProfile()
+                admin = Admin()
                 admin.key = user_key
                 admin.name = name
                 admin.when = datetime.datetime.now()
@@ -150,7 +184,7 @@ class AdminHandler(tornado.web.RequestHandler):
             name = self.get_argument('name', default='Anonymous')
             data = self.get_argument('data', default='')
 
-            user = UserProfile()
+            user = User()
             user.key = user_key
             user.when = datetime.datetime.now()
             user.data = data
@@ -171,7 +205,7 @@ class AdminHandler(tornado.web.RequestHandler):
         :return: User key as bits
         """
         if self.is_admin():
-            users = pd.read_sql('user_profiles', DB.engine)
+            users = pd.read_sql('users', DB.engine)
             self.set_status(200)
             self.write(users.to_csv().encode('utf-8'))
 

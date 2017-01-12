@@ -1,9 +1,7 @@
 from urllib import parse
 import os
-import io
 import inspect
 import pylm.registry
-import pandas as pd
 
 # Set the configuration as the environment variable.
 
@@ -20,7 +18,7 @@ from tornado.testing import AsyncHTTPTestCase
 from pylm.registry.routes import app
 from pylm.registry.db import DB
 
-DB.sync_tables()
+#DB.sync_tables()
 
 # Class that holds the temporary server. Note that the tests must be executed
 # in strict order.
@@ -49,6 +47,16 @@ class TestIndexApp(AsyncHTTPTestCase):
 
     def test_01set_cluster(self):
         response = self.fetch('/cluster?{}'.format(
-            parse.urlencode({'method': 'new_cluster'})),
+            parse.urlencode({'method': 'new_cluster',
+                             'key': 'my cluster',
+                             'description': cluster})),
             headers={'Key': 'new key'})
         self.assertEqual(response.code, 200)
+        self.assertEqual(response.body, b'my cluster')
+
+    def test_02list_clusters(self):
+        response = self.fetch('/cluster?{}'.format(
+            parse.urlencode({'method': 'clusters_list'})),
+            headers={'Key': 'new key'})
+        self.assertEqual(response.code, 200)
+        self.assertEqual(response.body[:13], b'{"my cluster"')
