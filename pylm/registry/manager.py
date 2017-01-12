@@ -2,7 +2,14 @@ import configparser
 from collections import defaultdict
 
 
-class ClusterManager(object):
+class ConfigManager(object):
+    """
+    It still has to handle:
+
+    * Multiple replicas of master servers
+    * Rules for exclusion
+    * Cluster status management (if the cluster is OK to run)
+    """
     def __init__(self, config_data):
         self.requested_services = configparser.ConfigParser()
         self.requested_services.read_string(config_data)
@@ -92,7 +99,8 @@ class ClusterManager(object):
 
                     resource_configuration = {
                         'commands': [
-                            c.format(**self.socket_mapping) for c in self.cluster_structure[service]['commands']
+                            c.format(**self.socket_mapping)
+                            for c in self.cluster_structure[service]['commands']
                         ],
                         'node': ip
                     }
@@ -121,7 +129,7 @@ class ClusterManager(object):
                     server_config.get('DEFAULT', 'Ip'),
                     i))
 
-        # Check which
+        # Return the configuration messages that belong to the server
         config_message = []
 
         for resource in self.configured_resources.values():

@@ -1,4 +1,4 @@
-from pylm.registry.manager import ClusterManager
+from pylm.registry.manager import ConfigManager
 
 
 cluster = """
@@ -43,14 +43,14 @@ Ports_from = 5555
 
 
 def test_00load_cluster():
-    manager = ClusterManager(cluster)
+    manager = ConfigManager(cluster)
     for s in manager.requested_services:
         print(s)
     assert len(manager.requested_services) == 3
 
 
 def test_01simple_request():
-    manager = ClusterManager(cluster)
+    manager = ConfigManager(cluster)
     commands = manager.process_resource(server)
     assert commands == ['python3 valuation_standalone_master.py '
                         '--pull tcp://127.0.0.1:5555 '
@@ -63,7 +63,7 @@ def test_01simple_request():
 
 
 def test_02multiple_requests():
-    manager = ClusterManager(cluster)
+    manager = ConfigManager(cluster)
 
     commands = manager.process_resource(server1)
     assert commands == ['python3 valuation_standalone_master.py '
