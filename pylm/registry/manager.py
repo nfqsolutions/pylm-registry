@@ -4,13 +4,19 @@ from collections import defaultdict
 
 class ConfigManager(object):
     """
+    Class that manages the configuration of the cluster and prepares
+    the information for the registry client that is running in each node.
+
+    This is a first-shot implementation that may be a little complex, and it
+    has been tested only for the most common cases.
+
     It still has to handle:
 
-    * Multiple replicas of master servers
+    * Multiple replicas of master servers.
     * Rules for exclusion
     * Cluster status management (if the cluster is OK to run)
     """
-    def __init__(self, config_data):
+    def __init__(self, config_data, logger_func=print):
         self.requested_services = configparser.ConfigParser()
         self.requested_services.read_string(config_data)
         self.socket_assignment = defaultdict(list)
@@ -19,6 +25,7 @@ class ConfigManager(object):
         self.configured_resources = {}
         self.highest_port_used = defaultdict(int)
         self.ready = False
+        self.logger = logger_func
 
         # Compute the cluster structure
         for service in self.requested_services:
@@ -83,8 +90,10 @@ class ConfigManager(object):
                 if service_instances <= self.cluster_structure[service]['replicas']:
                     # Here I need to allocate this available core.
                     ip = server_config.get('DEFAULT', 'ip')
-                    if server_config.getint('DEFAULT', 'ports_from') > self.highest_port_used[ip]:
-                        self.highest_port_used[ip] = server_config.getint('DEFAULT', 'ports_from')
+                    if (server_config.getint('DEFAULT', 'ports_from') >
+                            self.highest_port_used[ip]):
+                        self.highest_port_used[ip] = server_config.getint(
+                            'DEFAULT', 'ports_from')
 
                     # This is the complicated part, compute the necessary port numbers
                     # for the required sockets
@@ -123,9 +132,9 @@ class ConfigManager(object):
                     break
 
             if processor_used:
-                print("Resource used for {}".format(processor_used))
+                self.logger("Resource used for {}".format(processor_used))
             else:
-                print("Resource {} core {} unused".format(
+                self.logger("Resource {} core {} unused".format(
                     server_config.get('DEFAULT', 'Ip'),
                     i))
 

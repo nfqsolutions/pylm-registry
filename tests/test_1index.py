@@ -88,8 +88,3 @@ class TestIndexApp(AsyncHTTPTestCase):
         user_list = pd.read_csv(buffer)
         self.assertEqual(user_list.name[0], "New User")
 
-    def test_10new_cluster(self):
-        response = self.fetch('/cluster?{}'.format(
-            parse.urlencode({'method': 'new_cluster'})),
-            headers={'Key': 'new key'})
-        self.assertEqual(response.code, 200)
