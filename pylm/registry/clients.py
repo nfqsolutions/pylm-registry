@@ -1,4 +1,4 @@
-from tornado.httpclient import HTTPClient, HTTPRequest
+from tornado.httpclient import HTTPClient
 from urllib import parse
 import pandas as pd
 import io
