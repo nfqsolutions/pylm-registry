@@ -74,5 +74,45 @@ class RegistryClient(object):
     """
     Registry client to manage users.
     """
-    def __init__(self, API_KEY):
-        pass
+    def __init__(self, uri, user_key):
+        self.uri = uri
+        self.uk = user_key
+
+    def set_cluster(self, config_file, key=None):
+        with open(config_file) as f:
+            cluster = f.read()
+
+        arguments = {
+            'method': 'new_cluster',
+            'description': cluster
+        }
+
+        if key:
+            arguments['key'] = key
+
+        client = HTTPClient()
+        response = client.fetch('{}/cluster?{}'.format(
+            self.uri, parse.urlencode(arguments)),
+            headers={'Key': self.uk}
+        )
+
+        if response.code == 200:
+            return response.body.decode('utf-8')
+
+        else:
+            raise ValueError(response.body.decode('utf-8'))
+
+    def cluster_list(self):
+        arguments = {
+            'method': 'clusters_list'
+        }
+        client = HTTPClient()
+        response = client.fetch('{}/cluster?{}'.format(
+            self.uri, parse.urlencode(arguments)),
+            headers={'Key': self.uk}
+        )
+
+        if response.code == 200:
+            return response.body.decode('utf-8')
+        else:
+            raise ValueError(response.body.decode('utf-8'))
