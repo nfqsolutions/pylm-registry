@@ -1,19 +1,78 @@
 from tornado.httpclient import HTTPClient, HTTPRequest
 from urllib import parse
+import pandas as pd
+import io
 
 
-class RegistryClient(object):
-    def __init__(self, API_KEY):
-        pass
+def new_admin_account(uri, master_key, admin_name, key=None):
+    arguments = {
+        'method': 'new_admin',
+        'name': admin_name,
+    }
+    if key:
+        arguments['key'] = key
+
+    client = HTTPClient()
+    response = client.fetch('{}/admin?{}'.format(
+        uri, parse.urlencode(arguments)),
+        headers={'Key': master_key}
+    )
+    if response.code == 200:
+        return response.body.decode('utf-8')
+    else:
+        raise ValueError(response.body.decode('utf-8'))
 
 
 class AdminClient(object):
-    def __index__(self, uri, API_KEY):
+    """
+    Admin client to manage users
+    """
+    def __init__(self, uri, admin_key):
         self.uri = uri
-        self.key = API_KEY
+        self.ak = admin_key
 
-    def new_key(self):
-        request = HTTPRequest(self.url, "GET", headers={'Key': 'test'})
-        new_uri = parse.urljoin(request, 'admin?new')
-        response = HTTPClient.fetch(new_uri)
-        print(response)
+    def new_user(self, name, data={}, key=None):
+        arguments = {
+            'method': 'new_user',
+            'name': name,
+            'data': data
+        }
+        if key:
+            arguments[key] = key
+
+        client = HTTPClient()
+        response = client.fetch('{}/admin?{}'.format(
+            self.uri, parse.urlencode(arguments)),
+            headers={'Key': self.ak}
+        )
+        if response.code == 200:
+            return response.body.decode('utf-8')
+        else:
+            raise ValueError(response.body.decode('utf-8'))
+
+    def user_list(self):
+        arguments = {
+            'method': 'user_list'
+        }
+
+        client = HTTPClient()
+        response = client.fetch('{}/admin?{}'.format(
+            self.uri, parse.urlencode(arguments)),
+            headers={'Key': self.ak}
+        )
+
+        if response.code == 200:
+            buffer = io.BytesIO(response.body)
+            user_list = pd.read_csv(buffer)
+            return user_list
+
+        else:
+            raise ValueError(response.body.decode('utf-8'))
+
+
+class RegistryClient(object):
+    """
+    Registry client to manage users.
+    """
+    def __init__(self, API_KEY):
+        pass
