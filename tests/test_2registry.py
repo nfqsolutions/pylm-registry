@@ -108,6 +108,7 @@ class TestIndexApp(AsyncHTTPTestCase):
             headers={'Key': 'new key'})
         self.assertEqual(response.code, 200)
         commands = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(len(commands), 1)
         self.assertEqual(commands[0][:30], 'python3 valuation_standalone_m')
 
         response = self.fetch('/cluster?{}'.format(
