@@ -42,5 +42,6 @@ class Cluster(Model):
     key = Column(String)
     when = Column(DateTime)
     description = Column(String)
+    status = Column(String)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="clusters")

@@ -1,6 +1,7 @@
 from pylm.registry.config import configuration
 from pylm.registry.db import DB
 from pylm.registry.models import Admin, User, AdminLog, Cluster
+from pylm.registry.manager import ConfigManager
 from uuid import uuid4
 import pandas as pd
 import tornado.web
@@ -78,6 +79,7 @@ class ClusterHandler(tornado.web.RequestHandler):
             cluster.key = self.get_argument('key', default=uuid4())
             cluster.description = self.get_argument('description')
             cluster.when = datetime.datetime.now()
+            cluster.status = ''
             cluster.user = user
 
             DB.session.add(cluster)
@@ -102,10 +104,43 @@ class ClusterHandler(tornado.web.RequestHandler):
             self.set_status(200)
             self.write(json.dumps(clusters_dump).encode('utf-8'))
 
+    def set_cluster_reset(self):
+        if self.is_user():
+            cluster_key = self.get_argument('cluster')
+            cluster_data = DB.session.query(
+                Cluster).filter(Cluster.key == cluster_key).one_or_none()
+            cluster_data.status = ''
+            DB.session.commit()
+
+            self.set_status(200)
+            self.write(cluster_key.encode('utf-8'))
+
+    def get_node_config(self):
+        if self.is_user():
+            cluster_key = self.get_argument('cluster')
+            node_specs = self.get_argument('node')
+            cluster_data = DB.session.query(
+                Cluster).filter(Cluster.key == cluster_key).one_or_none()
+
+            # Assign the configuration
+            configurator = ConfigManager(cluster_data.description)
+            # Load the temporal status of the cluster
+            configurator.load_status(cluster_data.status)
+            # Process the node configuration
+            commands = configurator.process_resource(node_specs)
+            # Update the cluster status in the database.
+            cluster_data.status = configurator.dump_status()
+            DB.session.commit()
+
+            self.set_status(200)
+            self.write(json.dumps(commands).encode('utf-8'))
+
     def get(self):
         methods = {
             'new_cluster': self.set_new_cluster,
             'clusters_list': self.get_clusters_list,
+            'node_config': self.get_node_config,
+            'cluster_reset': self.set_cluster_reset
         }
         user_method = self.get_argument('method', default=False)
 

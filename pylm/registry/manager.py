@@ -1,4 +1,5 @@
 import configparser
+import pickle
 from collections import defaultdict
 
 
@@ -67,6 +68,21 @@ class ConfigManager(object):
             for socket in service['sockets']:
                 self.socket_assignment[socket].append(name)
 
+    def dump_status(self):
+        return pickle.dumps((
+            self.socket_mapping,
+            self.configured_resources,
+            self.highest_port_used,
+            self.ready,
+            ))
+
+    def load_status(self, dump):
+        if dump:
+            (self.socket_mapping,
+             self.configured_resources,
+             self.highest_port_used,
+             self.ready) = pickle.loads(dump)
+
     def process_resource(self, server_spec):
         """
         Process the server request and return the jobs to be run on the server.
@@ -115,16 +131,15 @@ class ConfigManager(object):
                     }
 
                     if self.cluster_structure[service]['replicas']:
-                        self.configured_resources['{} {}'.format(
-                            service,
-                            service_instances+1)] = resource_configuration
+                        service_name = '{} {}'.format(service, service_instances+1)
+                        self.configured_resources[service_name] = resource_configuration
 
                         intended_replicas = self.cluster_structure[service]['replicas']
                         if intended_replicas == service_instances:
-                            self.cluster_structure[service]['ready'] = True
+                            self.configured_resources[service_name]['ready'] = True
                     else:
                         self.configured_resources[service] = resource_configuration
-                        self.cluster_structure[service]['ready'] = True
+                        self.configured_resources[service]['ready'] = True
 
                     processor_used = service
                     # Core configured, break the loop to configure the next
@@ -145,4 +160,5 @@ class ConfigManager(object):
             if resource['node'] == server_config.get('DEFAULT', 'ip'):
                 config_message.append(' '.join(resource['commands']))
 
+        print(config_message)
         return config_message
