@@ -21,7 +21,7 @@ setup(
                  'Programming Language :: Python :: 3.5',
                  'Programming Language :: Python :: 3.6'],
     namespace_packages=['pylm'],
-    install_requires=['pylm', 'tornado', 'sqlalchemy', 'pandas'],
+    install_requires=['pylm', 'tornado', 'sqlalchemy'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     include_package_data=True,

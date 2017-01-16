@@ -35,8 +35,8 @@ class User(Model):
     def __repr__(self):
         return "<User {}>".format(self.name)
 
-    def json(self):
-        json_struct = {
+    def dict(self):
+        return {
           "name": self.name,
           "when": self.when.isoformat(),
           "data": self.data,
@@ -44,7 +44,9 @@ class User(Model):
           "active": self.active,
           "clusters": [cluster.key for cluster in self.clusters]
         }
-        return json.dumps(json_struct)
+
+    def json(self):
+        return json.dumps(self.dict())
 
 
 class Cluster(Model):

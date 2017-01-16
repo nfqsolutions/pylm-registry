@@ -121,3 +121,21 @@ class TestIndexApp(AsyncHTTPTestCase):
         print(response)
         self.assertEqual(commands[0][:27], 'python3 valuation_worker.py')
         self.assertEqual(commands[1][:27], 'python3 valuation_worker.py')
+
+    def test_06status_cluster(self):
+        response = self.fetch('/cluster?{}'.format(
+            parse.urlencode({'method': 'cluster_status',
+                             'cluster': 'my cluster'})),
+            headers={'Key': 'new key'})
+        self.assertEqual(response.code, 200)
+
+        cluster_status = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(cluster_status["socket mapping"]["_1"], 'tcp://127.0.0.1:5555')
+
+    def test_07delete_cluster(self):
+        response = self.fetch('/cluster?{}'.format(
+            parse.urlencode({'method': 'cluster_delete',
+                             'cluster': 'my cluster'})),
+            headers={'Key': 'new key'})
+        self.assertEqual(response.code, 200)
+        self.assertEqual(response.body, b'my cluster')

@@ -4,7 +4,6 @@ import os
 import io
 import inspect
 import pylm.registry
-import pandas as pd
 
 # Set the configuration as the environment variable.
 
@@ -85,9 +84,8 @@ class TestIndexApp(AsyncHTTPTestCase):
             parse.urlencode({'method': 'user_list'})),
             headers={'Key': 'new_key'})
         self.assertEqual(response.code, 200)
-        buffer = io.BytesIO(response.body)
-        user_list = pd.read_json(buffer)
-        self.assertEqual(user_list.name[0], "New User")
+        user_list = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(user_list[0]["name"], "New User")
 
     def test_user(self):
         response = self.fetch('/admin?{}'.format(

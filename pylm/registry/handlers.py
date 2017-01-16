@@ -3,10 +3,10 @@ from pylm.registry.db import DB
 from pylm.registry.models import Admin, User, AdminLog, Cluster
 from pylm.registry.manager import ConfigManager
 from uuid import uuid4
-import pandas as pd
 import tornado.web
 import tornado.template
 import pylm.registry
+import pickle
 import datetime
 import inspect
 import json
@@ -119,6 +119,38 @@ class ClusterHandler(tornado.web.RequestHandler):
             self.set_status(200)
             self.write(cluster_key.encode('utf-8'))
 
+    def set_cluster_delete(self):
+        if self.is_user():
+            cluster_key = self.get_argument('cluster')
+            cluster = DB.session.query(
+                Cluster
+                ).filter(Cluster.key == cluster_key).one_or_none()
+
+            DB.session.delete(cluster)
+            DB.session.commit()
+
+            self.set_status(200)
+            self.write(cluster_key)
+
+    def get_cluster_status(self):
+        if self.is_user():
+            cluster_key = self.get_argument('cluster')
+            cluster = DB.session.query(
+                Cluster).filter(Cluster.key == cluster_key).one_or_none()
+
+            serialized_status = pickle.loads(cluster.status)
+            cluster_status = json.dumps(
+                {
+                    "socket mapping": serialized_status[0],
+                    "configured resources": serialized_status[1],
+                    "highest port used": serialized_status[2],
+                    "ready": serialized_status[3]
+                }
+            )
+
+            self.set_status(200)
+            self.write(cluster_status.encode('utf-8'))
+
     def get_node_config(self):
         if self.is_user():
             cluster_key = self.get_argument('cluster')
@@ -144,7 +176,9 @@ class ClusterHandler(tornado.web.RequestHandler):
             'new_cluster': self.set_new_cluster,
             'clusters_list': self.get_clusters_list,
             'node_config': self.get_node_config,
-            'cluster_reset': self.set_cluster_reset
+            'cluster_reset': self.set_cluster_reset,
+            'cluster_delete': self.set_cluster_delete,
+            'cluster_status': self.get_cluster_status
         }
         user_method = self.get_argument('method', default=False)
 
@@ -245,9 +279,9 @@ class AdminHandler(tornado.web.RequestHandler):
         :return: User key as bits
         """
         if self.is_admin():
-            users = pd.read_sql('users', DB.engine)
+            user_list = [u.dict() for u in DB.session.query(User).all()]
             self.set_status(200)
-            self.write(users.to_json().encode('utf-8'))
+            self.write(json.dumps(user_list).encode('utf-8'))
 
     def get_user(self):
         """
