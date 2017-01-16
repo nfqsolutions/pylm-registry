@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from pylm.registry.db import Model
 from sqlalchemy.orm import relationship
+import json
 
 
 class AdminLog(Model):
@@ -29,11 +30,21 @@ class User(Model):
     data = Column(String)
     key = Column(String)
     active = Column(Boolean)
-    active_until = Column(DateTime)
     clusters = relationship("Cluster", back_populates="user")
 
     def __repr__(self):
         return "<User {}>".format(self.name)
+
+    def json(self):
+        json_struct = {
+          "name": self.name,
+          "when": self.when.isoformat(),
+          "data": self.data,
+          "key": self.key,
+          "active": self.active,
+          "clusters": [cluster.key for cluster in self.clusters]
+        }
+        return json.dumps(json_struct)
 
 
 class Cluster(Model):

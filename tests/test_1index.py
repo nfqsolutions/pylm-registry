@@ -1,4 +1,5 @@
 from urllib import parse
+import json
 import os
 import io
 import inspect
@@ -66,7 +67,7 @@ class TestIndexApp(AsyncHTTPTestCase):
                              'data': '{}',
                              'key': "new key"})),
             headers={'Key': 'new_key'})
-        self.assertEqual(response.code, 200),
+        self.assertEqual(response.code, 200)
         self.assertEqual(response.body, b"new key")
 
     def test_07user_wrong(self):
@@ -76,15 +77,25 @@ class TestIndexApp(AsyncHTTPTestCase):
                              'data': '{}',
                              'key': "new key"})),
             headers={'Key': 'wrong_key'})
-        self.assertEqual(response.code, 400),
+        self.assertEqual(response.code, 400)
         self.assertEqual(response.body, b"Admin key not valid")
 
     def test_08user_list(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'user_list'})),
             headers={'Key': 'new_key'})
-        self.assertEqual(response.code, 200),
+        self.assertEqual(response.code, 200)
         buffer = io.BytesIO(response.body)
-        user_list = pd.read_csv(buffer)
+        user_list = pd.read_json(buffer)
         self.assertEqual(user_list.name[0], "New User")
+
+    def test_user(self):
+        response = self.fetch('/admin?{}'.format(
+            parse.urlencode({'method': 'user',
+                             'key': 'new key'})),
+            headers={'Key': 'new_key'})
+
+        self.assertEqual(response.code, 200)
+        user_info = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(user_info['key'],  'new key')
 

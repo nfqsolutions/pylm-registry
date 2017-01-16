@@ -11,9 +11,19 @@ setup(
     packages=[
         'pylm.registry'
         ],
+    classifiers=['Development Status :: 3 - Alpha',
+                 'Environment :: Console',
+                 'Intended Audience :: Developers',
+                 'Operating System :: POSIX',
+                 'License :: OSI Approved :: GNU Affero General Public License v3',
+                 'Programming Language :: Python :: 3',
+                 'Programming Language :: Python :: 3.4',
+                 'Programming Language :: Python :: 3.5',
+                 'Programming Language :: Python :: 3.6'],
     namespace_packages=['pylm'],
     install_requires=['pylm', 'tornado', 'sqlalchemy', 'pandas'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
-    scripts=['scripts/pylm-registry.py'])
+    include_package_data=True,
+    scripts=['scripts/pylm-registry'])
 

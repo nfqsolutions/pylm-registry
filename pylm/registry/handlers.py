@@ -55,8 +55,12 @@ class ClusterHandler(tornado.web.RequestHandler):
             is_user = DB.session.query(
                 User).filter(User.key == user_key).one_or_none()
 
-            if is_user:
+            if is_user and is_user.active:
                 return True
+
+            elif is_user and not is_user.active:
+                self.set_status(400)
+                self.write(b'User not active')
 
             else:
                 self.set_status(400)
@@ -224,6 +228,7 @@ class AdminHandler(tornado.web.RequestHandler):
             user.when = datetime.datetime.now()
             user.data = data
             user.name = name
+            user.active = True
 
             DB.session.add(user)
             DB.session.commit()
@@ -242,16 +247,48 @@ class AdminHandler(tornado.web.RequestHandler):
         if self.is_admin():
             users = pd.read_sql('users', DB.engine)
             self.set_status(200)
-            self.write(users.to_csv().encode('utf-8'))
+            self.write(users.to_json().encode('utf-8'))
 
-    def set_user_inactive(self):
-        pass
+    def get_user(self):
+        """
+        Get user from its id key
+
+        :return:
+        """
+        if self.is_admin():
+            user_key = self.get_argument('key')
+            user = DB.session.query(
+                User).filter(User.key == user_key).one_or_none()
+
+            self.set_status(200)
+            self.write(user.json().encode('utf-8'))
+
+    def set_deactivate_user(self):
+        if self.is_admin():
+            user_key = self.get_argument('key')
+            user = DB.session.query(
+                User).filter(User.key == user_key).one_or_none()
+            user.active = False
+
+            DB.session.commit()
+
+    def set_activate_user(self):
+        if self.is_admin():
+            user_key = self.get_argument('key')
+            user = DB.session.query(
+                User).filter(User.key == user_key).one_or_none()
+            user.active = True
+
+            DB.session.commit()
 
     def get(self):
         methods = {
             'new_admin': self.set_new_admin,
             'new_user': self.set_new_user,
-            'user_list': self.get_user_list
+            'user_list': self.get_user_list,
+            'user': self.get_user,
+            'activate_user': self.set_activate_user,
+            'deactivate_user': self.set_deactivate_user
         }
         user_method = self.get_argument('method', default=False)
 
