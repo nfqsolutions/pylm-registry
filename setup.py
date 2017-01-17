@@ -5,7 +5,7 @@ from setuptools import setup
 setup(
     name='pylm-registry',
     description='Registry service to configure clusters of PALM components',
-    version="0.1.4",
+    version="0.1.5",
     author="See AUTHORS file",
     author_email="solutions@nfq.es",
     packages=[
