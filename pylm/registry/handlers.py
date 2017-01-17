@@ -138,15 +138,18 @@ class ClusterHandler(tornado.web.RequestHandler):
             cluster = DB.session.query(
                 Cluster).filter(Cluster.key == cluster_key).one_or_none()
 
-            serialized_status = pickle.loads(cluster.status)
-            cluster_status = json.dumps(
-                {
-                    "socket mapping": serialized_status[0],
-                    "configured resources": serialized_status[1],
-                    "highest port used": serialized_status[2],
-                    "ready": serialized_status[3]
-                }
-            )
+            if cluster.status:
+                serialized_status = pickle.loads(cluster.status)
+                cluster_status = json.dumps(
+                    {
+                        "socket mapping": serialized_status[0],
+                        "configured resources": serialized_status[1],
+                        "highest port used": serialized_status[2],
+                        "ready": serialized_status[3]
+                    }
+                )
+            else:
+                cluster_status = ''
 
             self.set_status(200)
             self.write(cluster_status.encode('utf-8'))
