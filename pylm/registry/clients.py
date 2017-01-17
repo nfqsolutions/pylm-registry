@@ -171,7 +171,7 @@ class RegistryClient(object):
 
     def cluster_status(self, cluster_key):
         arguments = {
-            'method': 'clusters_status',
+            'method': 'cluster_status',
             'cluster': cluster_key
         }
         client = HTTPClient()
@@ -182,5 +182,21 @@ class RegistryClient(object):
 
         if response.code == 200:
             return json.loads(response.body.decode('utf-8'))
+        else:
+            raise ValueError(response.body.decode('utf-8'))
+
+    def cluster_reset(self, cluster_key):
+        arguments = {
+            'method': 'cluster_reset',
+            'cluster': cluster_key
+        }
+        client = HTTPClient()
+        response = client.fetch('{}/cluster?{}'.format(
+            self.uri, parse.urlencode(arguments)),
+            headers={'Key': self.uk}
+        )
+
+        if response.code == 200:
+            return response.body.decode('utf-8')
         else:
             raise ValueError(response.body.decode('utf-8'))

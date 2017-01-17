@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, LargeBinary
 from pylm.registry.db import Model
 from sqlalchemy.orm import relationship
 import json
@@ -55,6 +55,6 @@ class Cluster(Model):
     key = Column(String)
     when = Column(DateTime)
     description = Column(String)
-    status = Column(String)
+    status = Column(LargeBinary)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="clusters")
