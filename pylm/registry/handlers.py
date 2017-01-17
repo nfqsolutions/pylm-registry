@@ -113,7 +113,7 @@ class ClusterHandler(tornado.web.RequestHandler):
             cluster_key = self.get_argument('cluster')
             cluster_data = DB.session.query(
                 Cluster).filter(Cluster.key == cluster_key).one_or_none()
-            cluster_data.status = ''
+            cluster_data.status = b''
             DB.session.commit()
 
             self.set_status(200)
