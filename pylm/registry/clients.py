@@ -153,10 +153,11 @@ class RegistryClient(object):
             for cluster_data in clusters.values():
                 print(*cluster_data.values())
 
-    def request(self, cluster_key):
+    def request(self, cluster_key, configuration):
         arguments = {
             'method': 'node_config',
-            'cluster': cluster_key
+            'cluster': cluster_key,
+            'node': configuration
         }
         client = HTTPClient()
         response = client.fetch('{}/cluster?{}'.format(
@@ -181,7 +182,10 @@ class RegistryClient(object):
         )
 
         if response.code == 200:
-            return json.loads(response.body.decode('utf-8'))
+            if response.body:
+                return json.loads(response.body.decode('utf-8'))
+            else:
+                return "Empty"
         else:
             raise ValueError(response.body.decode('utf-8'))
 
