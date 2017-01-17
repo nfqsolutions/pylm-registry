@@ -272,6 +272,18 @@ class AdminHandler(tornado.web.RequestHandler):
             self.set_status(200)
             self.write(user_key.encode('utf-8'))
 
+    def set_delete_user(self):
+        if self.is_admin():
+            user_key = self.get_argument('key')
+            user = DB.session.query(
+                User
+            ).filter(User.key == user_key).one_or_none()
+            DB.session.delete(user)
+            db_log('Deleted user {}'.format(user.name))
+
+            self.set_status(200)
+            self.write(user_key.encode('utf-8'))
+
     def get_user_list(self):
         """
         Get a list of users
@@ -322,7 +334,8 @@ class AdminHandler(tornado.web.RequestHandler):
             'user_list': self.get_user_list,
             'user': self.get_user,
             'activate_user': self.set_activate_user,
-            'deactivate_user': self.set_deactivate_user
+            'deactivate_user': self.set_deactivate_user,
+            'delete_user': self.set_delete_user
         }
         user_method = self.get_argument('method', default=False)
 

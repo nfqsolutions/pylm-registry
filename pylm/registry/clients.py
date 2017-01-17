@@ -42,7 +42,7 @@ class AdminClient(object):
         arguments = {
             'method': 'new_user',
             'name': name,
-            'data': data
+            'data': json.dumps(data)
         }
         if key:
             arguments[key] = key
@@ -73,6 +73,25 @@ class AdminClient(object):
 
         else:
             raise ValueError(response.body.decode('utf-8'))
+
+    def delete_user(self, key):
+        arguments = {
+            'method': 'delete_user',
+            'key': key
+        }
+
+        client = HTTPClient()
+        response = client.fetch('{}/admin?{}'.format(
+            self.uri, parse.urlencode(arguments)),
+            headers={'Key': self.ak}
+        )
+
+        if response.code == 200:
+            return response.body.decode('utf-8')
+
+        else:
+            raise ValueError(response.body.decode('utf-8'))
+
 
     def view_user_list(self):
         user_list = self.user_list()
