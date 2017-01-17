@@ -30,7 +30,7 @@ class AdminClient(object):
         self.uri = uri
         self.ak = admin_key
 
-    def new_user(self, name, data={}, key=None):
+    def new_user(self, name, data={}, key=''):
         """
         Set a new user for
 
@@ -42,10 +42,9 @@ class AdminClient(object):
         arguments = {
             'method': 'new_user',
             'name': name,
-            'data': json.dumps(data)
+            'data': json.dumps(data),
+            'key': key
         }
-        if key:
-            arguments[key] = key
 
         client = HTTPClient()
         response = client.fetch('{}/admin?{}'.format(
@@ -91,7 +90,6 @@ class AdminClient(object):
 
         else:
             raise ValueError(response.body.decode('utf-8'))
-
 
     def view_user_list(self):
         user_list = self.user_list()

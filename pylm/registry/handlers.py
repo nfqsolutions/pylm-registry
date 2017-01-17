@@ -224,8 +224,14 @@ class AdminHandler(tornado.web.RequestHandler):
         if 'Key' in self.request.headers:
             if self.request.headers['Key'] == configuration['Admin']['Key']:
                 # This part generates an administrator user and key
+                # User key query param may be missing
                 user_key = self.get_argument('key', default=str(uuid4()))
-                name = self.get_argument('name', default='No name given')
+
+                # User key can be an empty string
+                if not user_key:
+                    user_key = str(uuid4())
+
+                name = self.get_argument('name', default='Anonymous')
                 
                 admin = Admin()
                 admin.key = user_key

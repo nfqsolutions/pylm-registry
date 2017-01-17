@@ -87,7 +87,7 @@ class TestIndexApp(AsyncHTTPTestCase):
         user_list = json.loads(response.body.decode('utf-8'))
         self.assertEqual(user_list[0]["name"], "New User")
 
-    def test_user(self):
+    def test_09user(self):
         response = self.fetch('/admin?{}'.format(
             parse.urlencode({'method': 'user',
                              'key': 'new key'})),
@@ -96,4 +96,16 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
         user_info = json.loads(response.body.decode('utf-8'))
         self.assertEqual(user_info['key'],  'new key')
+
+    def test_10user_key(self):
+        response = self.fetch('/admin?{}'.format(
+            parse.urlencode({'method': 'new_user',
+                             'name': 'some_name',
+                             'data': '{"email": "some@email.com"}',
+                             'key': 'new key 1'})),
+            headers={'Key': 'new_key'})
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(response.body,  b'new key 1')
+
 
