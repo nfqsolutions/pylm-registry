@@ -107,7 +107,7 @@ class ConfigManager(object):
         """
         Process the server request and return the jobs to be run on the server.
 
-        :param server_spec:
+        :param server_spec: String with the server spec
         :return:
         """
         server_config = configparser.ConfigParser()
