@@ -16,7 +16,7 @@ STATIC_PATH = os.path.abspath(os.path.join(
 os.environ['PYLM_REGISTRY_CONFIG'] = os.path.join(STATIC_PATH, 'registry.conf')
 
 from tornado.testing import AsyncHTTPTestCase
-from pylm.registry.routes import app
+from pylm.registry.application import app
 
 # Class that holds the temporary server. Note that the tests must be executed
 # in strict order.

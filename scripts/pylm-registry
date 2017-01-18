@@ -22,7 +22,7 @@ args = parser.parse_args()
 # This environment variable is needed at import time
 os.environ['PYLM_REGISTRY_CONFIG'] = args.config
 
-from pylm.registry.routes import app
+from pylm.registry.application import app
 from pylm.registry.db import DB
 
 if args.sync:
