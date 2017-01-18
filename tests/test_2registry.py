@@ -97,6 +97,7 @@ class TestIndexApp(AsyncHTTPTestCase):
             parse.urlencode({'method': 'cluster_reset',
                              'cluster': 'my cluster'})),
             headers={'Key': 'new key'})
+        print(response.body)
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, b'my cluster')
 

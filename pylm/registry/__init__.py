@@ -1,2 +1,2 @@
 """Python implementation of the PALM registry to configure clusters"""
-__version__ = "0.1.8"
+__version__ = "0.1.9"

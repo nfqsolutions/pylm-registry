@@ -72,6 +72,26 @@ class ClusterHandler(tornado.web.RequestHandler):
 
         return False
 
+    def is_owner(self, cluster):
+        """
+        Check if the request is from the user that owns the cluster
+
+        :return: True or False
+        """
+        if self.is_user():
+            user_key = self.request.headers['key']
+            user = DB.session.query(
+                User
+            ).filter(User.key == user_key).one_or_none()
+            clusters = [cluster.key for cluster in user.clusters]
+            if cluster in clusters:
+                return True
+
+            else:
+                self.set_status(400)
+                self.write(b'User does not own the cluster')
+                return False
+
     def set_new_cluster(self):
         if self.is_user():
             # Get the user from the user key
@@ -109,8 +129,8 @@ class ClusterHandler(tornado.web.RequestHandler):
             self.write(json.dumps(clusters_dump).encode('utf-8'))
 
     def set_cluster_reset(self):
-        if self.is_user():
-            cluster_key = self.get_argument('cluster')
+        cluster_key = self.get_argument('cluster')
+        if self.is_owner(cluster_key):
             cluster_data = DB.session.query(
                 Cluster).filter(Cluster.key == cluster_key).one_or_none()
             cluster_data.status = b''
@@ -120,8 +140,8 @@ class ClusterHandler(tornado.web.RequestHandler):
             self.write(cluster_key.encode('utf-8'))
 
     def set_cluster_delete(self):
-        if self.is_user():
-            cluster_key = self.get_argument('cluster')
+        cluster_key = self.get_argument('cluster')
+        if self.is_owner(cluster_key):
             cluster = DB.session.query(
                 Cluster
                 ).filter(Cluster.key == cluster_key).one_or_none()
@@ -133,8 +153,8 @@ class ClusterHandler(tornado.web.RequestHandler):
             self.write(cluster_key)
 
     def get_cluster_status(self):
-        if self.is_user():
-            cluster_key = self.get_argument('cluster')
+        cluster_key = self.get_argument('cluster')
+        if self.is_owner(cluster_key):
             cluster = DB.session.query(
                 Cluster).filter(Cluster.key == cluster_key).one_or_none()
 
@@ -155,24 +175,23 @@ class ClusterHandler(tornado.web.RequestHandler):
             self.write(cluster_status.encode('utf-8'))
 
     def get_node_config(self):
-        if self.is_user():
-            cluster_key = self.get_argument('cluster')
-            node_specs = self.get_argument('node')
-            cluster_data = DB.session.query(
-                Cluster).filter(Cluster.key == cluster_key).one_or_none()
+        cluster_key = self.get_argument('cluster')
+        node_specs = self.get_argument('node')
+        cluster_data = DB.session.query(
+            Cluster).filter(Cluster.key == cluster_key).one_or_none()
 
-            # Assign the configuration
-            configurator = ConfigManager(cluster_data.description)
-            # Load the temporal status of the cluster
-            configurator.load_status(cluster_data.status)
-            # Process the node configuration
-            commands = configurator.process_resource(node_specs)
-            # Update the cluster status in the database.
-            cluster_data.status = configurator.dump_status()
-            DB.session.commit()
+        # Assign the configuration
+        configurator = ConfigManager(cluster_data.description)
+        # Load the temporal status of the cluster
+        configurator.load_status(cluster_data.status)
+        # Process the node configuration
+        commands = configurator.process_resource(node_specs)
+        # Update the cluster status in the database.
+        cluster_data.status = configurator.dump_status()
+        DB.session.commit()
 
-            self.set_status(200)
-            self.write(json.dumps(commands).encode('utf-8'))
+        self.set_status(200)
+        self.write(json.dumps(commands).encode('utf-8'))
 
     def get(self):
         methods = {
