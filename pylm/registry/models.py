@@ -11,6 +11,14 @@ class AdminLog(Model):
     when = Column(DateTime)
 
 
+class ClusterLog(Model):
+    __tablename__ = 'cluster_logs'
+    id = Column(Integer, primary_key=True)
+    when = Column(DateTime)
+    text = Column(String)
+    cluster = Column(String)
+
+
 class Admin(Model):
     __tablename__ = 'admins'
     id = Column(Integer, primary_key=True)
