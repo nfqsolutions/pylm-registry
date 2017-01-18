@@ -44,6 +44,7 @@ class ConfigManager(object):
                         sockets.append(value)
 
                     if variable.startswith('--'):
+                        # This is '{value} because {{ is the escaped {'
                         commands.append(' '.join([variable, '{{{}}}'.format(value)]))
 
                 connections = [s.strip() for s in self.requested_services.get(
@@ -60,13 +61,32 @@ class ConfigManager(object):
                         service, 'Role', fallback='Master'),
                     'replicas': self.requested_services.getint(
                         service, 'Replicas', fallback=0),
-                    'ready': False
+                    'ready': False,
+                    'order': 0,
                     }
 
         # Find dependencies from the socket connections.
         for name, service in self.cluster_structure.items():
             for socket in service['sockets']:
                 self.socket_assignment[socket].append(name)
+
+        # Determine the order in which the services have to be configured
+        # The algorithm is simple now. If it has connections, it is configured
+        # in a second round. This is important, because otherwise the
+        # configuration of the cluster depends on how the cluster configuration
+        # file was written
+        order = []
+        for server, structure in self.cluster_structure.items():
+            if structure['connections']:
+                # If it has at least one connection, last in the queue
+                order.append(server)
+            else:
+                # If it has no connections, first in the queue
+                order.insert(0, server)
+
+        # And finally assign the order
+        for service in order:
+            self.cluster_structure[service]['order'] = order.index(service)
 
     def dump_status(self):
         return pickle.dumps((
@@ -96,14 +116,16 @@ class ConfigManager(object):
         # This configures the job to send to the server
         for i in range(server_config.getint('DEFAULT', 'processors')):
             processor_used = False
-            # Find a suitable service
-            for service in self.cluster_structure:
+            # Configure the services with the established order
+            for service, structure in sorted(self.cluster_structure.items(),
+                                             key=lambda x: x[1]['order']):
+                print(service)
                 # Obtain the number of instances of a given service running
                 service_instances = sum(
                     map(lambda x: x.startswith(service),
                         self.configured_resources)
                 )
-                if service_instances <= self.cluster_structure[service]['replicas']:
+                if service_instances <= structure['replicas']:
                     # Here I need to allocate this available core.
                     ip = server_config.get('DEFAULT', 'ip')
                     if (server_config.getint('DEFAULT', 'ports_from') >
@@ -114,7 +136,7 @@ class ConfigManager(object):
                     # This is the complicated part, compute the necessary port numbers
                     # for the required sockets
 
-                    for socket in self.cluster_structure[service]['sockets']:
+                    for socket in structure['sockets']:
                         if socket not in self.socket_mapping:
                             self.socket_mapping[socket] = 'tcp://{}:{}'.format(
                                 ip,
@@ -125,16 +147,16 @@ class ConfigManager(object):
                     resource_configuration = {
                         'commands': [
                             c.format(**self.socket_mapping)
-                            for c in self.cluster_structure[service]['commands']
+                            for c in structure['commands']
                         ],
                         'node': ip
                     }
 
-                    if self.cluster_structure[service]['replicas']:
+                    if structure['replicas']:
                         service_name = '{} {}'.format(service, service_instances+1)
                         self.configured_resources[service_name] = resource_configuration
 
-                        intended_replicas = self.cluster_structure[service]['replicas']
+                        intended_replicas = structure['replicas']
                         if intended_replicas == service_instances:
                             self.configured_resources[service_name]['ready'] = True
                     else:
