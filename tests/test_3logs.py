@@ -1,8 +1,8 @@
 from urllib import parse
 import json
-
 from tornado.testing import AsyncHTTPTestCase
 from pylm.registry.application import make_app
+from datetime import datetime
 
 cluster = """
 [Valuation Master]
@@ -53,5 +53,35 @@ class TestIndexApp(AsyncHTTPTestCase):
             })),
         )
         self.assertEqual(response.code, 200)
+        parsed_log = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(parsed_log[0]['text'], 'This is a piece of log')
+
+    def test_03_query_with_dates(self):
+        threshold = datetime.now()
+
+        response = self.fetch('/logs?{}'.format(
+            parse.urlencode({
+                'cluster': 'my cluster'})),
+            method="POST",
+            body=b"This is another piece of log")
+        self.assertEqual(response.code, 200)
+
+        response = self.fetch('/logs?{}'.format(
+            parse.urlencode({
+                'cluster': 'my cluster',
+                'fr': threshold.isoformat()
+            })),
+        )
+
+        parsed_log = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(parsed_log[0]['text'], 'This is another piece of log')
+
+        response = self.fetch('/logs?{}'.format(
+            parse.urlencode({
+                'cluster': 'my cluster',
+                'to': threshold.isoformat()
+            })),
+        )
+
         parsed_log = json.loads(response.body.decode('utf-8'))
         self.assertEqual(parsed_log[0]['text'], 'This is a piece of log')
