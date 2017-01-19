@@ -27,6 +27,6 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': ['pylm-runner=pylm.registry.runner:main',
-                            'pylm-registry=pylm.registry.main:main'],
+                            'pylm-registry=pylm.registry.application:main'],
     })
 
