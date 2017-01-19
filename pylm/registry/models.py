@@ -18,6 +18,12 @@ class ClusterLog(Model):
     text = Column(String)
     cluster = Column(String)
 
+    def to_dict(self):
+        return {
+            "when": self.when.isoformat(),
+            "text": self.text.decode('utf-8'),
+        }
+
 
 class Admin(Model):
     __tablename__ = 'admins'
@@ -43,7 +49,7 @@ class User(Model):
     def __repr__(self):
         return "<User {}>".format(self.name)
 
-    def dict(self):
+    def to_dict(self):
         return {
           "name": self.name,
           "when": self.when.isoformat(),
@@ -53,8 +59,8 @@ class User(Model):
           "clusters": [cluster.key for cluster in self.clusters]
         }
 
-    def json(self):
-        return json.dumps(self.dict())
+    def to_json(self):
+        return json.dumps(self.to_dict())
 
 
 class Cluster(Model):

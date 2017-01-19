@@ -127,7 +127,7 @@ class AdminHandler(tornado.web.RequestHandler):
         :return: User key as bits
         """
         if self.is_admin():
-            user_list = [u.dict() for u in DB.session.query(User).all()]
+            user_list = [u.to_dict() for u in DB.session.query(User).all()]
             self.set_status(200)
             self.write(json.dumps(user_list).encode('utf-8'))
 
@@ -143,7 +143,7 @@ class AdminHandler(tornado.web.RequestHandler):
                 User).filter(User.key == user_key).one_or_none()
 
             self.set_status(200)
-            self.write(user.json().encode('utf-8'))
+            self.write(user.to_json().encode('utf-8'))
 
     def set_deactivate_user(self):
         if self.is_admin():
