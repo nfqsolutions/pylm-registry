@@ -4,6 +4,7 @@ from tornado.httpclient import HTTPClient
 
 from pylm.registry.clients.admin import AdminClient
 from pylm.registry.clients.registry import RegistryClient
+from pylm.registry.clients.logs import LogClient
 
 
 def new_admin_account(uri, master_key, admin_name, key=None):
