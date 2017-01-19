@@ -1,7 +1,10 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, LargeBinary
-from pylm.registry.db import Model
-from sqlalchemy.orm import relationship
 import json
+
+from sqlalchemy import Column, Integer, String, DateTime, Boolean,\
+    ForeignKey, LargeBinary
+from sqlalchemy.orm import relationship
+
+from pylm.registry.handlers.persistency.db import Model
 
 
 class AdminLog(Model):

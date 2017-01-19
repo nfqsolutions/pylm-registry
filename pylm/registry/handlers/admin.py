@@ -5,9 +5,9 @@ from uuid import uuid4
 import tornado.web
 
 from pylm.registry.application import configuration
-from pylm.registry.db import DB
-from pylm.registry.models import Admin, User
-from pylm.registry.models import AdminLog
+from pylm.registry.handlers.persistency.db import DB
+from pylm.registry.handlers.persistency.models import Admin, User
+from pylm.registry.handlers.persistency.models import AdminLog
 
 
 def admin_log(text):

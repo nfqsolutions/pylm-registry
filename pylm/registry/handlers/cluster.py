@@ -5,9 +5,9 @@ from uuid import uuid4
 
 import tornado.web
 
-from pylm.registry.db import DB
 from pylm.registry.handlers.manager import ConfigManager
-from pylm.registry.models import User, Cluster
+from pylm.registry.handlers.persistency.db import DB
+from pylm.registry.handlers.persistency.models import User, Cluster
 
 
 class ClusterHandler(tornado.web.RequestHandler):

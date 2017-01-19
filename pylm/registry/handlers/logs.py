@@ -1,10 +1,11 @@
-import tornado.web
-from datetime import datetime
-from sqlalchemy import and_
 import json
+from datetime import datetime
 
-from pylm.registry.models import ClusterLog, Cluster
-from pylm.registry.db import DB
+import tornado.web
+from sqlalchemy import and_
+
+from pylm.registry.handlers.persistency.db import DB
+from pylm.registry.handlers.persistency.models import ClusterLog, Cluster
 
 
 class LogsHandler(tornado.web.RequestHandler):

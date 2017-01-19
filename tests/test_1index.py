@@ -1,9 +1,10 @@
-from urllib import parse
 import json
+from urllib import parse
 
 from tornado.testing import AsyncHTTPTestCase
+
 from pylm.registry.application import make_app
-from pylm.registry.db import DB
+from pylm.registry.handlers.persistency.db import DB
 
 DB.sync_tables()
 

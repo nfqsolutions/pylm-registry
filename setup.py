@@ -3,13 +3,18 @@
 from setuptools import setup
 
 setup(
-    name='main.py',
+    name='pylm-registry',
     description='Registry service to configure clusters of PALM components',
-    version="0.3",
+    version="0.3.1",
     author="See AUTHORS file",
     author_email="solutions@nfq.es",
     packages=[
-        'pylm.registry'
+        'pylm.registry',
+        'pylm.registry.templates',
+        'pylm.registry.static',
+        'pylm.registry.clients',
+        'pylm.registry.handlers',
+        'pylm.registry.handlers.persistency'
         ],
     classifiers=['Development Status :: 3 - Alpha',
                  'Environment :: Console',

@@ -22,7 +22,7 @@ class RegistryClient(object):
         :param config_file: Path to the config file to be loaded
         :param key: Key that identifies the cluster
         :return: Key that identifies the cluster. It can be generated if it is
-            not given as a parameter
+            not given as a parameter. Use only while debugging.
         """
         with open(config_file) as f:
             cluster = f.read()
@@ -157,7 +157,8 @@ class RegistryClient(object):
         """
         Reset the status of a cluster. This means that all the temporary
         information about which resource request is forgotten. This may
-        leave configured resources misconfigured, so handle with care.
+        leave configured resources not properly configured, so handle with
+        care.
 
         :param cluster_key:
         :return: Key of the cluster being reset

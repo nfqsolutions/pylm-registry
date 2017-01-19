@@ -1,11 +1,13 @@
-import tornado.web
 import argparse
+import configparser
 import inspect
-import tornado.ioloop
-import pylm.registry
 import os
 import sys
-import configparser
+
+import tornado.ioloop
+import tornado.web
+
+import pylm.registry
 
 STATIC_PATH = os.path.abspath(os.path.join(
     inspect.getfile(pylm.registry),
@@ -45,7 +47,7 @@ configuration.read(PYLM_REGISTRY_CONFIG)
 def make_app():
     from pylm.registry.handlers import IndexHandler, ClusterHandler, \
         StaticHandler, AdminHandler, LogsHandler
-    from pylm.registry.db import DB
+    from pylm.registry.handlers.persistency.db import DB
 
     app = tornado.web.Application(
         [
