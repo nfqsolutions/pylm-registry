@@ -1,4 +1,4 @@
-from pylm.registry.manager import ConfigManager
+from pylm.registry.handlers.manager import ConfigManager
 
 
 cluster = """

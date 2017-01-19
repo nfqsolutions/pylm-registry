@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from pylm.registry.config import configuration
+from pylm.registry.application import configuration
 
 
 class Handler(object):

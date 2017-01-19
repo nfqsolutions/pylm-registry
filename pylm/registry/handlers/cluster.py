@@ -6,7 +6,7 @@ from uuid import uuid4
 import tornado.web
 
 from pylm.registry.db import DB
-from pylm.registry.manager import ConfigManager
+from pylm.registry.handlers.manager import ConfigManager
 from pylm.registry.models import User, Cluster
 
 
