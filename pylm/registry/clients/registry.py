@@ -177,3 +177,29 @@ class RegistryClient(object):
             return response.body.decode('utf-8')
         else:
             raise ValueError(response.body.decode('utf-8'))
+
+
+def request(uri, cluster_key, configuration):
+    """
+    As an available resource, pass the configuration to the registry
+    and get the commands that have to be run.
+
+    :param uri: Address of the Registry
+    :param cluster_key: Key of the cluster the resource wants to connect to
+    :param configuration: String with the configuration of the resource
+    :return: List with the commands that have to be run.
+    """
+    arguments = {
+        'method': 'node_config',
+        'cluster': cluster_key,
+        'node': configuration
+    }
+    client = HTTPClient()
+    response = client.fetch('{}/cluster?{}'.format(
+        uri, parse.urlencode(arguments))
+    )
+
+    if response.code == 200:
+        return json.loads(response.body.decode('utf-8'))
+    else:
+        raise ValueError(response.body.decode('utf-8'))
