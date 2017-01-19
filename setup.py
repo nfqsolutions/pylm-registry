@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(
-    name='pylm-registry',
+    name='main.py',
     description='Registry service to configure clusters of PALM components',
     version="0.3",
     author="See AUTHORS file",
@@ -25,8 +25,8 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     include_package_data=True,
-    scripts=['scripts/pylm-registry'],
     entry_points={
-        'console_scripts': ['pylm-runner=pylm.registry.runner:main'],
+        'console_scripts': ['pylm-runner=pylm.registry.runner:main',
+                            'pylm-registry=pylm.registry.main:main'],
     })
 

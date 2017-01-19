@@ -37,6 +37,9 @@ class LogsHandler(tornado.web.RequestHandler):
             log = ClusterLog()
             log.when = datetime.now()
             log.cluster = cluster
+
+            # This is important. A Post request requires something
+            # in its body, otherwise it gives a 599 HTTP error.
             log.text = self.request.body
 
             DB.session.add(log)

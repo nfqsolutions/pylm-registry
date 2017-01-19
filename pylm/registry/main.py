@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse
 import inspect
 import tornado.ioloop
@@ -29,6 +28,7 @@ if args.sync:
     print('Warning: syncing tables')
     DB.sync_tables()
 
-if __name__ == '__main__':
+
+def main():
     app.listen(args.port)
     tornado.ioloop.IOLoop.current().start()
