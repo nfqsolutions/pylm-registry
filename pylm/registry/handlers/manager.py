@@ -32,11 +32,7 @@ class ConfigManager(object):
         for service in self.requested_services:
             if not service == 'DEFAULT':
                 sockets = []
-                commands = [
-                    'python3 {}'.format(
-                        self.requested_services[service]['Script']
-                    )
-                ]
+                commands = [self.requested_services[service]['Script']]
 
                 for variable in self.requested_services[service]:
                     value = self.requested_services[service][variable]

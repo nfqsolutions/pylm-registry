@@ -3,7 +3,7 @@ from pylm.registry.handlers.manager import ConfigManager
 
 cluster = """
 [Valuation Master]
-Script = valuation_standalone_master.py
+Script = python3 valuation_standalone_master.py
 --pull = _1
 --pub = _2
 --workerpull = _3
@@ -11,7 +11,7 @@ Script = valuation_standalone_master.py
 --db = _5
 
 [Valuation Worker]
-Script = valuation_worker.py
+Script = python3 valuation_worker.py
 --db = _5
 Connected = Valuation Master
 Role = Worker
