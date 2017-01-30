@@ -1,6 +1,6 @@
 import configparser
 import pickle
-from collections import defaultdict
+from collections import defaultdict, deque
 
 
 class ConfigManager(object):
@@ -71,14 +71,14 @@ class ConfigManager(object):
         # in a second round. This is important, because otherwise the
         # configuration of the cluster depends on how the cluster configuration
         # file was written
-        order = []
+        order = deque()
         for server, structure in self.cluster_structure.items():
             if structure['connections']:
                 # If it has at least one connection, last in the queue
                 order.append(server)
             else:
                 # If it has no connections, first in the queue
-                order.insert(0, server)
+                order.appendleft(server)
 
         # And finally assign the order
         for service in order:
