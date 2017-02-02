@@ -1,5 +1,3 @@
-from pylm.registry import config
-
 import argparse
 import inspect
 import os
@@ -46,6 +44,9 @@ else:
     parser.add_argument('--port', type=int, default=8080)
     parser.add_argument('--sync', action='store_true')
     parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--secret', type=str,
+                        help="Secret and unguessable key",
+                        default='SECRET')
     parser.set_defaults(sync=False)
 
     args = parser.parse_args()
@@ -71,8 +72,8 @@ def make_app():
             (r"/view_logs", ViewLogsHandler),
             (r"/", IndexHandler),
         ],
-        cookie_secret=config.COOKIE_SECRET,
-        secret=config.SECRET,
+        cookie_secret=args.secret,
+        secret=args.secret,
         login_url="/login",
         db=args.db,
         debug=args.debug
