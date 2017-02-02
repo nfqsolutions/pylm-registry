@@ -22,6 +22,8 @@ STATIC_PATH = os.path.abspath(os.path.join(
     'static')
     )
 
+password_backend = default_backend()
+
 # Behave differently if it is executed by py.test
 if 'test' in sys.argv[0]:
     STATIC_PATH = os.path.abspath(os.path.join(
@@ -31,7 +33,6 @@ if 'test' in sys.argv[0]:
     )
 
     # This environment variable is needed at import time
-    PYLM_REGISTRY_CONFIG = os.path.join(STATIC_PATH, 'registry.conf')
     sync = False
     args_type = namedtuple('Arguments', ['db', 'debug'])
     args = args_type(db='sqlite://', debug=False)
@@ -73,7 +74,7 @@ def make_app():
         print('Warning: syncing tables')
         DB.sync_tables()
 
-        if not DB.session.query(User).filter(User.admin==True).all():
+        if not DB.session.query(User).filter(User.admin == True).all():
             print('No admin available, please setup an admin account:')
             key = str(uuid4())
             password = getpass.getpass('Password: ')
@@ -85,14 +86,12 @@ def make_app():
             new_admin.admin = True
             new_admin.active = True
 
-            backend = default_backend()
-
             kpdf = PBKDF2HMAC(
                 algorithm=hashes.SHA256(),
                 length=32,
                 salt=os.urandom(16),
                 iterations=1000000,
-                backend=backend
+                backend=password_backend
             )
             new_admin.password = kpdf.derive(password.encode('utf-8'))
             DB.session.add(new_admin)
