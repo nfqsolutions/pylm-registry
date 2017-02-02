@@ -52,7 +52,8 @@ else:
 
 def make_app():
     from pylm.registry.handlers import IndexHandler, ClusterHandler, \
-        StaticHandler, LogsHandler, LoginHandler, DashboardHandler
+        StaticHandler, LogsHandler, LoginHandler, DashboardHandler, \
+        NewClusterHandler
     from pylm.registry.handlers.persistency.db import DB
     from pylm.registry.handlers.persistency.models import User
 
@@ -63,6 +64,7 @@ def make_app():
             (r"/favicon.ico", StaticHandler),
             (r"/login", LoginHandler),
             (r"/dashboard", DashboardHandler),
+            (r"/new_cluster", NewClusterHandler),
             (r"/", IndexHandler),
         ],
         cookie_secret="__TODO:_GENERATE_A_RANDOM_KEY_HERE__",

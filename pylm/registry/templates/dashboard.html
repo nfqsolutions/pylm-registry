@@ -1,0 +1,20 @@
+<html>
+  <body>
+  <h1>Dashboard!</h1>
+    <p>{{ user.name }}</p>
+    <p>{{ user.key }}</p>
+  <h2>Clusters</h2>
+  {% if user.clusters %}
+  <ul>
+      {% for cluster in user.clusters %}
+      <li>{{ cluster.key }}</li>
+      {% end %}
+  </ul>
+  {% end %}
+  <p><a href="/new_cluster">Create cluster</a></p>
+  {% if user.admin %}
+    <h2>User Admin</h2>
+  <p>Create user</p>
+  {% end %}
+  </body>
+</html>
