@@ -1,10 +1,12 @@
 from pylm.registry.handlers.base import BaseHandler
-from pylm.registry.handlers.persistency.models import User, Cluster
+from pylm.registry.handlers.persistency.models import User, Cluster, ClusterLog
 from pylm.registry.handlers.persistency.db import DB
 from pylm.registry.handlers import ROOT_PATH
 from uuid import uuid4
+from sqlalchemy import and_
 import tornado
 import datetime
+import pickle
 import os
 
 
@@ -31,6 +33,7 @@ class NewClusterHandler(BaseHandler):
             user=user)
         )
 
+    @tornado.web.authenticated
     def post(self):
         name = tornado.escape.xhtml_escape(self.current_user)
         user = DB.session.query(User).filter(User.name == name).one_or_none()
@@ -48,6 +51,44 @@ class NewClusterHandler(BaseHandler):
 
 
 class ViewClusterHandler(BaseHandler):
-    @tornado.web.autenticated
+    @tornado.web.authenticated
     def get(self):
         name = tornado.escape.xhtml_escape(self.current_user)
+
+        cluster = DB.session.query(
+            Cluster
+            ).filter(Cluster.key == self.get_argument("cluster")).one_or_none()
+
+        template_dir = os.path.join(ROOT_PATH, 'templates')
+        loader = tornado.template.Loader(template_dir)
+        if cluster.status:
+            status = pickle.load(cluster.status)
+        else:
+            status = ''
+
+        self.write(loader.load("view_cluster.html").generate(
+            cluster=cluster,
+            status=status)
+        )
+
+
+class ViewLogsHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        name = tornado.escape.xhtml_escape(self.current_user)
+
+        cluster = self.get_argument('cluster')
+        fr = self.get_argument('fr', default='1970-01-01T00:00:00.000000')
+        to = self.get_argument('to', default='2200-01-01T00:00:00.000000')
+
+        logs = list()
+        for log_line in DB.session.query(
+            ClusterLog
+        ).filter(and_(ClusterLog.cluster == cluster,
+                      ClusterLog.when < to,
+                      ClusterLog.when > fr)).all():
+            logs.append(log_line.to_dict())
+
+        self.set_status(200)
+        for log in logs:
+            self.write(str(log).encode('utf-8'))

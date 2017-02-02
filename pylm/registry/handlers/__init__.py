@@ -21,4 +21,5 @@ from pylm.registry.handlers.cluster import ClusterHandler
 from pylm.registry.handlers.logs import LogsHandler
 from pylm.registry.handlers.login import LoginHandler
 from pylm.registry.handlers.base import BaseHandler
-from pylm.registry.handlers.dashboard import DashboardHandler, NewClusterHandler
+from pylm.registry.handlers.dashboard import DashboardHandler, \
+    NewClusterHandler, ViewClusterHandler, ViewLogsHandler
