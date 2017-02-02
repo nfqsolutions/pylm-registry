@@ -52,7 +52,7 @@ else:
 
 def make_app():
     from pylm.registry.handlers import IndexHandler, ClusterHandler, \
-        StaticHandler, LogsHandler, LoginHandler
+        StaticHandler, LogsHandler, LoginHandler, DashboardHandler
     from pylm.registry.handlers.persistency.db import DB
     from pylm.registry.handlers.persistency.models import User
 
@@ -62,6 +62,7 @@ def make_app():
             (r"/logs", LogsHandler),
             (r"/favicon.ico", StaticHandler),
             (r"/login", LoginHandler),
+            (r"/dashboard", DashboardHandler),
             (r"/", IndexHandler),
         ],
         cookie_secret="__TODO:_GENERATE_A_RANDOM_KEY_HERE__",
@@ -76,20 +77,19 @@ def make_app():
 
         if not DB.session.query(User).filter(User.admin == True).all():
             print('No admin available, please setup an admin account:')
-            key = str(uuid4())
             password = getpass.getpass('Password: ')
 
             new_admin = User()
             new_admin.name = 'admin'
             new_admin.full_name = 'Administrator account'
-            new_admin.key = key
+            new_admin.key = str(uuid4())
             new_admin.admin = True
             new_admin.active = True
 
             kpdf = PBKDF2HMAC(
                 algorithm=hashes.SHA256(),
                 length=32,
-                salt=os.urandom(16),
+                salt=app.settings['secret'].encode('utf-8'),
                 iterations=1000000,
                 backend=password_backend
             )
