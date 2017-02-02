@@ -1,3 +1,5 @@
+from pylm.registry import config
+
 import argparse
 import inspect
 import os
@@ -69,8 +71,8 @@ def make_app():
             (r"/view_logs", ViewLogsHandler),
             (r"/", IndexHandler),
         ],
-        cookie_secret="__TODO:_GENERATE_A_RANDOM_KEY_HERE__",
-        secret="__TODO:_GENERATE_A_RANDOM_KEY_HERE__",
+        cookie_secret=config.COOKIE_SECRET,
+        secret=config.SECRET,
         login_url="/login",
         db=args.db,
         debug=args.debug
