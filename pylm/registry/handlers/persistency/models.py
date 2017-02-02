@@ -28,25 +28,17 @@ class ClusterLog(Model):
         }
 
 
-class Admin(Model):
-    __tablename__ = 'admins'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    when = Column(DateTime)
-    key = Column(String)
-
-    def __repr__(self):
-        return "<Admin {}>".format(self.name)
-
-
 class User(Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    fullname = Column(String)
     when = Column(DateTime)
     data = Column(String)
     key = Column(String)
     active = Column(Boolean)
+    password = Column(String)
+    admin = Column(Boolean)
     clusters = relationship("Cluster", back_populates="user")
 
     def __repr__(self):

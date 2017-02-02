@@ -2,7 +2,6 @@ from urllib import parse
 
 from tornado.httpclient import HTTPClient
 
-from pylm.registry.clients.admin import AdminClient
 from pylm.registry.clients.registry import RegistryClient
 from pylm.registry.clients.logs import LogClient
 

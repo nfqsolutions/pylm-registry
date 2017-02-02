@@ -40,7 +40,7 @@ setup(
     name='pylm-registry',
     description='Registry service to configure clusters of PALM components',
     long_description=long_description,
-    version="0.3.3",
+    version="0.3.5",
     author="See AUTHORS file",
     author_email="solutions@nfq.es",
     packages=[
@@ -61,8 +61,8 @@ setup(
                  'Programming Language :: Python :: 3.5',
                  'Programming Language :: Python :: 3.6'],
     namespace_packages=['pylm'],
-    install_requires=['pylm', 'tornado', 'sqlalchemy'],
-    setup_requires=['pytest-runner'],
+    install_requires=['pylm', 'tornado', 'sqlalchemy', 'cryptography'],
+    setup_requires=['pytest-runner', 'pytest'],
     tests_require=['pytest'],
     include_package_data=True,
     entry_points={
