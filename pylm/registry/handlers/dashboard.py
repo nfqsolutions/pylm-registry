@@ -139,3 +139,9 @@ class NewUserHandler(BaseHandler):
         DB.session.add(new_user)
         DB.session.commit()
         self.redirect('/dashboard')
+
+
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.clear_cookie("user")
+        self.redirect('/')
