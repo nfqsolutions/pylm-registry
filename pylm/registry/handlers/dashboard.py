@@ -2,6 +2,9 @@ from pylm.registry.handlers.base import BaseHandler
 from pylm.registry.handlers.persistency.models import User, Cluster, ClusterLog
 from pylm.registry.handlers.persistency.db import DB
 from pylm.registry.handlers import ROOT_PATH
+from pylm.registry.application import password_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from uuid import uuid4
 from sqlalchemy import and_
 import tornado
@@ -17,8 +20,12 @@ class DashboardHandler(BaseHandler):
         user = DB.session.query(User).filter(User.name == name).one_or_none()
         template_dir = os.path.join(ROOT_PATH, 'templates')
         loader = tornado.template.Loader(template_dir)
+
+        users = DB.session.query(User).all()
+
         self.write(loader.load("dashboard.html").generate(
-            user=user)
+            user=user,
+            users=users)
         )
 
 
@@ -92,3 +99,43 @@ class ViewLogsHandler(BaseHandler):
         self.set_status(200)
         for log in logs:
             self.write(str(log).encode('utf-8'))
+
+
+class NewUserHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        name = tornado.escape.xhtml_escape(self.current_user)
+
+        template_dir = os.path.join(ROOT_PATH, 'templates')
+        loader = tornado.template.Loader(template_dir)
+        self.write(loader.load("new_user.html").generate())
+
+    @tornado.web.authenticated
+    def post(self):
+        name = tornado.escape.xhtml_escape(self.current_user)
+
+        kpdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=self.settings['secret'].encode('utf-8'),
+            iterations=1000000,
+            backend=password_backend
+        )
+
+        new_user = User()
+        new_user.name = tornado.escape.xhtml_escape(self.get_argument('name'))
+        new_user.password = kpdf.derive(
+            tornado.escape.xhtml_escape(
+                self.get_argument('password')
+            ).encode('utf-8'))
+        new_user.fullname = tornado.escape.xhtml_escape(
+            self.get_argument('fullname')
+        )
+        new_user.key = str(uuid4())
+        new_user.active = True
+        new_user.admin = False
+        new_user.when = datetime.datetime.now()
+
+        DB.session.add(new_user)
+        DB.session.commit()
+        self.redirect('/dashboard')

@@ -15,7 +15,14 @@
   <p><a href="/new_cluster">Create cluster</a></p>
   {% if user.admin %}
     <h2>User Admin</h2>
-  <p>Create user</p>
+  {% if users %}
+  <ul>
+      {% for u in users %}
+      <li>{{ u.name }}</li>
+      {% end %}
+  </ul>
+  {% end %}
+  <p><a href="/new_user">Create user</a></p>
   {% end %}
   </body>
 </html>

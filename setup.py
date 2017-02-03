@@ -40,7 +40,7 @@ setup(
     name='pylm-registry',
     description='Registry service to configure clusters of PALM components',
     long_description=long_description,
-    version="0.4",
+    version="0.4.1",
     author="See AUTHORS file",
     author_email="solutions@nfq.es",
     packages=[
