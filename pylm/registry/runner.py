@@ -38,7 +38,7 @@ def process_wrapper(commands):
     push_socket = context.socket(zmq.PUSH)
     push_socket.connect("inproc://hub")
 
-    with Popen(commands, stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+    with Popen(commands, stdout=PIPE, universal_newlines=True) as p:
         for line in p.stdout:
             push_socket.send(line.encode('utf-8'))
 
