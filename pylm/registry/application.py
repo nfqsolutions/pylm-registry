@@ -57,7 +57,7 @@ def make_app():
     from pylm.registry.handlers import IndexHandler, ClusterHandler, \
         StaticHandler, LogsHandler, LoginHandler, DashboardHandler, \
         NewClusterHandler, ViewClusterHandler, ViewLogsHandler, \
-        NewUserHandler, LogoutHandler
+        NewUserHandler, LogoutHandler, ResetHandler
     from pylm.registry.handlers.persistency.db import DB
     from pylm.registry.handlers.persistency.models import User
 
@@ -73,6 +73,7 @@ def make_app():
             (r"/view_logs", ViewLogsHandler),
             (r"/new_user", NewUserHandler),
             (r"/logout", LogoutHandler),
+            (r"/reset_cluster", ResetHandler),
             (r"/", IndexHandler),
         ],
         cookie_secret=args.secret,

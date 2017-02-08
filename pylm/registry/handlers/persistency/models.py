@@ -1,4 +1,5 @@
 import json
+import pickle
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean,\
     ForeignKey, LargeBinary
@@ -68,3 +69,23 @@ class Cluster(Model):
     status = Column(LargeBinary)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="clusters")
+
+    def to_dict(self):
+        if self.status:
+            status = pickle.loads(self.status)
+        else:
+            status = self.status.decode('utf-8')
+        return {
+            "key": self.key,
+            "when": self.when.isoformat(),
+            "description": self.description,
+            "status": status
+        }
+
+    @property
+    def parsed_status(self):
+        parsed = ''
+        if self.status:
+            parsed = json.dumps(pickle.loads(self.status))
+
+        return parsed

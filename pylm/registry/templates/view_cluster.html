@@ -10,7 +10,7 @@
 <h2>Description</h2>
 <pre>{{ cluster.description }}</pre>
 <h2>Status (<a href="/reset_cluster?cluster={{ cluster.key }}">reset</a>)</h2>
-<p>{{ cluster.status }}</p>
+<p>{{ cluster.parsed_status }}</p>
 <h2><a href="/view_logs?cluster={{ cluster.key }}">Logs</a></h2>
 </body>
 </html>

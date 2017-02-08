@@ -89,9 +89,7 @@ class ClusterHandler(tornado.web.RequestHandler):
 
             clusters_dump = dict()
             for cluster in user.clusters:
-                clusters_dump[cluster.key] = {
-                    "description": cluster.description
-                }
+                clusters_dump[cluster.key] = cluster.to_dict()
 
             self.set_status(200)
             self.write(json.dumps(clusters_dump).encode('utf-8'))

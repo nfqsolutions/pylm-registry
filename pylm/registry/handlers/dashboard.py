@@ -70,7 +70,7 @@ class ViewClusterHandler(BaseHandler):
         template_dir = os.path.join(ROOT_PATH, 'templates')
         loader = tornado.template.Loader(template_dir)
         if cluster.status:
-            status = pickle.load(cluster.status)
+            status = pickle.loads(cluster.status)
         else:
             status = ''
 
@@ -158,7 +158,26 @@ class NewUserHandler(BaseHandler):
             self.redirect('/dashboard?error=forbidden')
 
 
+class ResetHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        name = tornado.escape.xhtml_escape(self.current_user)
+        user = DB.session.query(User).filter(User.name == name).one_or_none()
+
+        cluster = self.get_argument('cluster')
+        clusterobj = DB.session.query(
+            Cluster
+        ).filter(Cluster.key == cluster).one_or_none()
+
+        if user == clusterobj.user:
+            clusterobj.status = b''
+            DB.session.commit()
+
+        self.redirect('/view_cluster?cluster={}'.format(cluster))
+
+
 class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.redirect('/')
+

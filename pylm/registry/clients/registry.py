@@ -73,14 +73,12 @@ class RegistryClient(object):
         """
         clusters = self.cluster_list()
         if clusters:
+            print('Key', 'when', sep='\t')
             for key, data in clusters.items():
-                print('key: ', key)
-                print('Configuration')
-                for cluster_data in data.values():
-                    print(cluster_data)
-
-                print('=========== ')
-                print(' ')
+                if 'when' not in data:
+                    print(key, '***', sep='\t')
+                else:
+                    print(key, data['when'], sep='\t')
 
     def view_cluster(self, key):
         """
