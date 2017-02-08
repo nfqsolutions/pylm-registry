@@ -92,6 +92,7 @@ def make_app():
             new_admin = User()
             new_admin.name = 'admin'
             new_admin.full_name = 'Administrator account'
+            new_admin.email = 'solutions@nfq.es'
             new_admin.key = str(uuid4())
             new_admin.admin = True
             new_admin.active = True

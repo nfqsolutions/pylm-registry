@@ -36,6 +36,7 @@ class User(Model):
     when = Column(DateTime)
     data = Column(String)
     key = Column(String)
+    email = Column(String)
     active = Column(Boolean)
     password = Column(String)
     admin = Column(Boolean)

@@ -61,6 +61,7 @@ class ViewClusterHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         name = tornado.escape.xhtml_escape(self.current_user)
+        user = DB.session.query(User).filter(User.name == name).one_or_none()
 
         cluster = DB.session.query(
             Cluster
@@ -73,18 +74,26 @@ class ViewClusterHandler(BaseHandler):
         else:
             status = ''
 
-        self.write(loader.load("view_cluster.html").generate(
-            cluster=cluster,
-            status=status)
-        )
+        if user == cluster.user:
+            self.write(loader.load("view_cluster.html").generate(
+                cluster=cluster,
+                status=status)
+            )
+        else:
+            self.redirect('/dashboard?error=forbidden')
 
 
 class ViewLogsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         name = tornado.escape.xhtml_escape(self.current_user)
+        user = DB.session.query(User).filter(User.name == name).one_or_none()
 
         cluster = self.get_argument('cluster')
+        clusterobj = DB.session.query(
+            Cluster
+        ).filter(Cluster.key == cluster).one_or_none()
+
         fr = self.get_argument('fr', default='1970-01-01T00:00:00.000000')
         to = self.get_argument('to', default='2200-01-01T00:00:00.000000')
 
@@ -96,9 +105,12 @@ class ViewLogsHandler(BaseHandler):
                       ClusterLog.when > fr)).all():
             logs.append(log_line.to_dict())
 
-        self.set_status(200)
-        for log in logs:
-            self.write(str(log).encode('utf-8'))
+        if user == clusterobj.user:
+            self.set_status(200)
+            for log in logs:
+                self.write(str(log).encode('utf-8'))
+        else:
+            self.redirect('/dashboard?error=forbidden')
 
 
 class NewUserHandler(BaseHandler):
@@ -113,6 +125,7 @@ class NewUserHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self):
         name = tornado.escape.xhtml_escape(self.current_user)
+        user = DB.session.query(User).filter(User.name == name).one_or_none()
 
         kpdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
@@ -131,14 +144,18 @@ class NewUserHandler(BaseHandler):
         new_user.fullname = tornado.escape.xhtml_escape(
             self.get_argument('fullname')
         )
+        new_user.email = self.get_argument('email')
         new_user.key = str(uuid4())
         new_user.active = True
         new_user.admin = False
         new_user.when = datetime.datetime.now()
 
-        DB.session.add(new_user)
-        DB.session.commit()
-        self.redirect('/dashboard')
+        if user.admin:
+            DB.session.add(new_user)
+            DB.session.commit()
+            self.redirect('/dashboard')
+        else:
+            self.redirect('/dashboard?error=forbidden')
 
 
 class LogoutHandler(BaseHandler):
