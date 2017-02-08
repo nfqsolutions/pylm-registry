@@ -129,8 +129,8 @@ class ConfigManager(object):
                         self.highest_port_used[ip] = server_config.getint(
                             'DEFAULT', 'ports_from')
 
-                    # This is the complicated part, compute the necessary port numbers
-                    # for the required sockets
+                    # This is the complicated part, compute the necessary
+                    # port numbers for the required sockets
 
                     for socket in structure['sockets']:
                         if socket not in self.socket_mapping:
@@ -149,7 +149,8 @@ class ConfigManager(object):
                     }
 
                     if structure['replicas']:
-                        service_name = '{} {}'.format(service, service_instances+1)
+                        service_name = '{} {}'.format(service,
+                                                      service_instances + 1)
                         self.configured_resources[service_name] = resource_configuration
 
                         intended_replicas = structure['replicas']
@@ -174,9 +175,10 @@ class ConfigManager(object):
         # Return the configuration messages that belong to the server
         config_message = []
 
-        for resource in self.configured_resources.values():
-            if resource['node'] == server_config.get('DEFAULT', 'ip'):
-                config_message.append(' '.join(resource['commands']))
+        if processor_used:
+            for resource in self.configured_resources.values():
+                if resource['node'] == server_config.get('DEFAULT', 'ip'):
+                    config_message.append(' '.join(resource['commands']))
 
         print(config_message)
         return config_message

@@ -51,6 +51,11 @@ def main():
     with open(args.config) as config_data:
         commands = request(args.registry, args.cluster, config_data.read())
 
+    print(commands)
+    if not commands:
+        print('No command issued')
+        return
+
     config = configparser.ConfigParser()
     config.read(args.config)
     processors = config.getint('DEFAULT', 'processors')
@@ -58,6 +63,7 @@ def main():
 
     futures = list()
 
+    print('Serving logs ...')
     with ThreadPoolExecutor(max_workers=processors+1) as executor:
         for command in commands:
             futures.append(executor.submit(process_wrapper, command.split()))
@@ -65,9 +71,14 @@ def main():
         futures.append(executor.submit(message_hub, client))
 
         # Only gets here in case of error
-        for future in as_completed(futures):
+        for i, future in enumerate(as_completed(futures)):
             try:
-                print(future.result())
+                result = future.result()
+                if result:
+                    print(result)
+                else:
+                    print('Task #{} completed'.format(i))
+
             except:
                 print('{} generated an exception'.format(future))
                 lines = traceback.format_exception(*sys.exc_info())

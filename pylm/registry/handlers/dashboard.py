@@ -105,10 +105,14 @@ class ViewLogsHandler(BaseHandler):
                       ClusterLog.when > fr)).all():
             logs.append(log_line.to_dict())
 
+        template_dir = os.path.join(ROOT_PATH, 'templates')
+        loader = tornado.template.Loader(template_dir)
+
         if user == clusterobj.user:
-            self.set_status(200)
-            for log in logs:
-                self.write(str(log).encode('utf-8'))
+            self.write(loader.load("view_logs.html").generate(
+                cluster=cluster,
+                logs=logs)
+            )
         else:
             self.redirect('/dashboard?error=forbidden')
 

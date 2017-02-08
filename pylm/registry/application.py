@@ -25,7 +25,7 @@ STATIC_PATH = os.path.abspath(os.path.join(
 password_backend = default_backend()
 
 # Behave differently if it is executed by py.test
-if 'test' in sys.argv[2]:
+if len(sys.argv) > 2 and 'test' in sys.argv[2]:
     STATIC_PATH = os.path.abspath(os.path.join(
         inspect.getfile(pylm.registry),
         os.pardir,
