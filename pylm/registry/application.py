@@ -25,7 +25,7 @@ STATIC_PATH = os.path.abspath(os.path.join(
 password_backend = default_backend()
 
 # Behave differently if it is executed by py.test
-if 'test' in sys.argv[0]:
+if 'test' in sys.argv[2]:
     STATIC_PATH = os.path.abspath(os.path.join(
         inspect.getfile(pylm.registry),
         os.pardir,
@@ -34,8 +34,8 @@ if 'test' in sys.argv[0]:
 
     # This environment variable is needed at import time
     sync = False
-    args_type = namedtuple('Arguments', ['db', 'debug'])
-    args = args_type(db='sqlite://', debug=False)
+    args_type = namedtuple('Arguments', ['db', 'debug', 'secret'])
+    args = args_type(db='sqlite://', debug=False, secret='test')
 
 else:
     parser = argparse.ArgumentParser(description='Run the PALM registry')
