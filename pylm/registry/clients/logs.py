@@ -11,6 +11,7 @@ class LogClient(object):
     def __init__(self, uri, cluster):
         self.uri = uri
         self.cluster = cluster
+        self.client = HTTPClient()
 
     def send(self, text):
         """
@@ -21,8 +22,7 @@ class LogClient(object):
         arguments = {
             'cluster': self.cluster,
         }
-        client = HTTPClient()
-        client.fetch('{}/logs?{}'.format(
+        self.client.fetch('{}/logs?{}'.format(
             self.uri, parse.urlencode(arguments)),
             method='POST',
             body=text.encode('utf-8')
@@ -46,8 +46,7 @@ class LogClient(object):
         if to:
             arguments['to'] = to
 
-        client = HTTPClient()
-        response = client.fetch('{}/logs?{}'.format(
+        response = self.client.fetch('{}/logs?{}'.format(
             self.uri, parse.urlencode(arguments)),
         )
 
