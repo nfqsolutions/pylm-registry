@@ -10,6 +10,14 @@ Pylm is the Python implementation of PALM, a framework to build
 clusters of high performance backend components. Pylm-registry is a tool to
 configure, launch and monitor PALM clusters.
 
+.. image:: https://badge.fury.io/py/pylm-registry.svg
+    :target: https://badge.fury.io/py/pylm-registry
+
+.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
+    :target: https://pylm-registry.readthedocs.io/en/latest
+
+.. image:: https://badge.fury.io/gh/nfqsolutions%2Fpylm-registry.svg
+    :target: https://badge.fury.io/gh/nfqsolutions%2Fpylm-registry
 
 
 .. toctree::
@@ -20,12 +28,6 @@ configure, launch and monitor PALM clusters.
    cluster_configuration
    server_configuration
 
-
-* `PYPI package page <https://pypi.python.org/pypi/pylm-registry/>`_
-
-* `Documentation <http://pylm-registry.readthedocs.io/en/latest/>`_
-
-* `Source code <https://github.com/nfqsolutions/pylm-registry>`_
 
 Pylm is released under a dual licensing scheme. The source is released
 as-is under the the AGPL version 3 license, a copy of the license is
