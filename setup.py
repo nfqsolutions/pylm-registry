@@ -2,6 +2,9 @@
 
 from setuptools import setup
 
+with open('pylm/registry/__init__.py') as f:
+    exec(f.read())
+
 long_description = """
 Pylm
 ====
@@ -40,7 +43,7 @@ setup(
     name='pylm-registry',
     description='Registry service to configure clusters of PALM components',
     long_description=long_description,
-    version="0.4.13",
+    version=__version__,
     author="See AUTHORS file",
     author_email="solutions@nfq.es",
     packages=[
