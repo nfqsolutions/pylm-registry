@@ -10,6 +10,12 @@ Pylm is the Python implementation of PALM, a framework to build
 clusters of high performance backend components. Pylm-registry is a tool to
 configure, launch and monitor PALM clusters.
 
+Installing **pylm-registry** is as easy as:
+
+.. code-block:: bash
+
+   $> pip install pylm-registry
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -22,11 +28,6 @@ configure, launch and monitor PALM clusters.
     Pylm requires a version of Python equal or higher than 3.4, and it is more
     thoroughly tested with Python 3.5.
 
-Installing **pylm-registry** is as easy as:
-
-.. code-block:: bash
-
-   $> pip install pylm-registry
 
 * `PYPI package page <https://pypi.python.org/pypi/pylm-registry/>`_
 
