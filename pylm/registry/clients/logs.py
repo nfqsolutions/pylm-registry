@@ -25,7 +25,7 @@ class LogClient(object):
         client.fetch('{}/logs?{}'.format(
             self.uri, parse.urlencode(arguments)),
             method='POST',
-            body=text.encode('utf-8')
+            body=text
         )
 
     def download(self, fr=None, to=None):

@@ -25,7 +25,7 @@ class ClusterLog(Model):
     def to_dict(self):
         return {
             "when": self.when.isoformat(),
-            "text": self.text.decode('utf-8'),
+            "text": self.text,
         }
 
 

@@ -6,6 +6,7 @@ from sqlalchemy import and_
 
 from pylm.registry.handlers.persistency.db import DB
 from pylm.registry.handlers.persistency.models import ClusterLog, Cluster
+from pylm.registry.messages.registry_pb2 import LogMessages
 
 
 class LogsHandler(tornado.web.RequestHandler):
@@ -35,17 +36,19 @@ class LogsHandler(tornado.web.RequestHandler):
             Cluster).filter(Cluster.key == cluster).one_or_none()
 
         if cluster_in_db:
-            log = ClusterLog()
-            log.when = datetime.now()
-            log.cluster = cluster
+            buffer = LogMessages()
+            buffer.ParseFromString(self.request.body)
+            for message in buffer.messages:
+                log = ClusterLog()
+                log.when = datetime.now()
+                log.cluster = cluster
+                log.text = message
+                DB.session.add(log)
+
+            DB.session.commit()
 
             # This is important. A Post request requires something
             # in its body, otherwise it gives a 599 HTTP error.
-            log.text = self.request.body
-
-            DB.session.add(log)
-            DB.session.commit()
-
             self.set_status(200)
             self.write(b'')
 
