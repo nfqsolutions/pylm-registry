@@ -8,7 +8,8 @@
   {% if user.clusters %}
   <ul>
       {% for cluster in user.clusters %}
-      <li><a href="/view_cluster?cluster={{ cluster.key }}">
+      <li>{{ cluster.alias }}: <a
+              href="/view_cluster?cluster={{ cluster.key }}">
           {{ cluster.key }}</a></li>
       {% end %}
   </ul>

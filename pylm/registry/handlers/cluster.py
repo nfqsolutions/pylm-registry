@@ -70,6 +70,7 @@ class ClusterHandler(tornado.web.RequestHandler):
             cluster = Cluster()
             cluster.key = self.get_argument('key', default=str(uuid4()))
             cluster.description = self.get_argument('description')
+            cluster.alias = self.get_argument('alias', default='')
             cluster.when = datetime.datetime.now()
             cluster.status = b''
             cluster.user = user

@@ -50,6 +50,7 @@ class NewClusterHandler(BaseHandler):
         new_cluster.user = user
         new_cluster.key = str(uuid4())
         new_cluster.when = datetime.datetime.now()
+        new_cluster.alias = self.get_argument("alias")
 
         DB.session.add(new_cluster)
         DB.session.commit()

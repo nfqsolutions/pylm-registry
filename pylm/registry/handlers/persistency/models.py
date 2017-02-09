@@ -64,6 +64,7 @@ class Cluster(Model):
     __tablename__ = 'clusters'
     id = Column(Integer, primary_key=True)
     key = Column(String)
+    alias = Column(String)
     when = Column(DateTime)
     description = Column(String)
     status = Column(LargeBinary)
@@ -79,6 +80,7 @@ class Cluster(Model):
             "key": self.key,
             "when": self.when.isoformat(),
             "description": self.description,
+            "alias": self.description,
             "status": status
         }
 
