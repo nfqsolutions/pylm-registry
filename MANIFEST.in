@@ -1,2 +1,4 @@
+include LICENSE.md
 recursive-include pylm/registry/templates *
 recursive-include pylm/registry/static *
+recursive-include docs/build/html *.html *.png *.gif *.js *.css *.md
