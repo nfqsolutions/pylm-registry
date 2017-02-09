@@ -6,10 +6,6 @@
 Welcome to Pylm-registry's documentation!
 =========================================
 
-Pylm is the Python implementation of PALM, a framework to build
-clusters of high performance backend components. Pylm-registry is a tool to
-configure, launch and monitor PALM clusters.
-
 .. image:: https://badge.fury.io/py/pylm-registry.svg
     :target: https://badge.fury.io/py/pylm-registry
 
@@ -19,6 +15,10 @@ configure, launch and monitor PALM clusters.
 .. image:: https://badge.fury.io/gh/nfqsolutions%2Fpylm-registry.svg
     :target: https://badge.fury.io/gh/nfqsolutions%2Fpylm-registry
 
+
+Pylm is the Python implementation of PALM, a framework to build
+clusters of high performance backend components. Pylm-registry is a tool to
+configure, launch and monitor PALM clusters.
 
 .. toctree::
    :maxdepth: 2
