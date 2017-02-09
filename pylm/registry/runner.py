@@ -58,13 +58,14 @@ def message_hub():
 def message_pusher(client):
     while True:
         time.sleep(1)
-        print('Sent {} log lines'.format(len(messages)))
-        buffer = LogMessages()
-        buffer.messages.extend(messages)
-        client.send(buffer.SerializeToString())
+        if len(messages) > 0:
+            print('Sent {} log lines'.format(len(messages)))
+            buffer = LogMessages()
+            buffer.messages.extend(messages)
+            client.send(buffer.SerializeToString())
 
-        # This clears the list with style
-        del messages[:]
+            # This clears the list with style
+            del messages[:]
 
 
 def process_wrapper(commands):
