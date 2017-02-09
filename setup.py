@@ -40,7 +40,7 @@ setup(
     name='pylm-registry',
     description='Registry service to configure clusters of PALM components',
     long_description=long_description,
-    version="0.4.12",
+    version="0.4.13",
     author="See AUTHORS file",
     author_email="solutions@nfq.es",
     packages=[
@@ -49,7 +49,8 @@ setup(
         'pylm.registry.static',
         'pylm.registry.clients',
         'pylm.registry.handlers',
-        'pylm.registry.handlers.persistency'
+        'pylm.registry.handlers.persistency',
+        'pylm.registry.messages'
         ],
     classifiers=['Development Status :: 3 - Alpha',
                  'Environment :: Console',
