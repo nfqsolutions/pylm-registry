@@ -5,15 +5,16 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.exceptions import InvalidKey
 from pylm.registry.handlers.persistency.models import User
 from pylm.registry.handlers.persistency.db import DB
+from pylm.registry.handlers import ROOT_PATH
+import tornado
+import os
 
 
 class LoginHandler(BaseHandler):
     def get(self):
-        self.write('<html><body><form action="/login" method="post">'
-                   'Name: <input type="text" name="name"><br/>'
-                   'Password: <input type="password" name="password">'
-                   '<input type="submit" value="Sign in">'
-                   '</form></body></html>')
+        template_dir = os.path.join(ROOT_PATH, 'templates')
+        loader = tornado.template.Loader(template_dir)
+        self.write(loader.load("login.html").generate())
 
     def post(self):
         user = DB.session.query(
