@@ -3,6 +3,7 @@ import json
 from tornado.testing import AsyncHTTPTestCase
 from pylm.registry.application import make_app
 from datetime import datetime
+from pylm.registry.messages.registry_pb2 import LogMessages
 
 cluster = """
 [Valuation Master]
@@ -39,11 +40,13 @@ class TestIndexApp(AsyncHTTPTestCase):
         self.assertEqual(response.body, b'my cluster')
 
     def test_01send_log(self):
+        msg = LogMessages()
+        msg.messages.extend([b"This is a piece of log"])
         response = self.fetch('/logs?{}'.format(
             parse.urlencode({
                 'cluster': 'my cluster'})),
             method="POST",
-            body=b"This is a piece of log")
+            body=msg.SerializeToString())
         self.assertEqual(response.code, 200)
 
     def test_02query_log(self):
@@ -58,12 +61,13 @@ class TestIndexApp(AsyncHTTPTestCase):
 
     def test_03_query_with_dates(self):
         threshold = datetime.now()
-
+        msg = LogMessages()
+        msg.messages.extend([b"This is another piece of log"])
         response = self.fetch('/logs?{}'.format(
             parse.urlencode({
                 'cluster': 'my cluster'})),
             method="POST",
-            body=b"This is another piece of log")
+            body=msg.SerializeToString())
         self.assertEqual(response.code, 200)
 
         response = self.fetch('/logs?{}'.format(
