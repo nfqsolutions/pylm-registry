@@ -62,7 +62,9 @@ class TestIndexApp(AsyncHTTPTestCase):
     def test_03_query_with_dates(self):
         threshold = datetime.now()
         msg = LogMessages()
-        msg.messages.extend([b"This is another piece of log"])
+        msg.messages.extend([b"Log1",
+                             b"Log2",
+                             b"Log3"])
         response = self.fetch('/logs?{}'.format(
             parse.urlencode({
                 'cluster': 'my cluster'})),
@@ -78,7 +80,9 @@ class TestIndexApp(AsyncHTTPTestCase):
         )
 
         parsed_log = json.loads(response.body.decode('utf-8'))
-        self.assertEqual(parsed_log[0]['text'], 'This is another piece of log')
+        print('+++++', parsed_log)
+        self.assertEqual(parsed_log[0]['text'], 'Log1')
+        self.assertEqual(parsed_log[1]['text'], 'Log2')
 
         response = self.fetch('/logs?{}'.format(
             parse.urlencode({
@@ -88,4 +92,30 @@ class TestIndexApp(AsyncHTTPTestCase):
         )
 
         parsed_log = json.loads(response.body.decode('utf-8'))
+        print('+++++', parsed_log)
         self.assertEqual(parsed_log[0]['text'], 'This is a piece of log')
+
+        new_threshold = datetime.now()
+        msg = LogMessages()
+        msg.messages.extend([b'Another log'])
+        response = self.fetch('/logs?{}'.format(
+            parse.urlencode({
+                'cluster': 'my cluster'})),
+            method="POST",
+            body=msg.SerializeToString())
+
+
+        response = self.fetch('/logs?{}'.format(
+            parse.urlencode({
+                'cluster': 'my cluster',
+                'fr': threshold.isoformat(),
+                'to': new_threshold.isoformat()
+            })),
+        )
+
+        parsed_log = json.loads(response.body.decode('utf-8'))
+        parsed_log = json.loads(response.body.decode('utf-8'))
+        print('+++++', parsed_log)
+        self.assertEqual(parsed_log[0]['text'], 'Log1')
+        self.assertEqual(parsed_log[1]['text'], 'Log2')
+        self.assertEqual(len(parsed_log), 3)
