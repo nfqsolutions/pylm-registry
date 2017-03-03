@@ -114,7 +114,6 @@ class TestIndexApp(AsyncHTTPTestCase):
         )
 
         parsed_log = json.loads(response.body.decode('utf-8'))
-        parsed_log = json.loads(response.body.decode('utf-8'))
         print('+++++', parsed_log)
         self.assertEqual(parsed_log[0]['text'], 'Log1')
         self.assertEqual(parsed_log[1]['text'], 'Log2')
